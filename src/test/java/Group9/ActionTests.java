@@ -3,7 +3,7 @@ package Group9;
 import Group9.agent.container.AgentContainer;
 import Group9.agent.container.GuardContainer;
 import Group9.agent.container.IntruderContainer;
-import Group8.Agents.IAgentFactory;
+import Group9.agent.factories.IAgentFactory;
 import Group9.map.GameMap;
 import Group9.map.GameSettings;
 import Group9.map.ViewRange;

@@ -2,6 +2,7 @@ package Group8.Agents;
 
 import Group8.Agents.Intruders.IntruderAStar;
 import Group9.agent.RandomAgent;
+import Group9.agent.factories.IAgentFactory;
 import Interop.Agent.Guard;
 import Interop.Agent.Intruder;
 import java.util.ArrayList;
