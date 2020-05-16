@@ -1,9 +1,10 @@
 package Group8.Agents;
 
+import Group9.agent.factories.IAgentFactory;
 import Interop.Agent.Guard;
 import Interop.Agent.Intruder;
 
-import java.util.Collections;
+
 import java.util.List;
 
 /**
@@ -15,11 +16,13 @@ import java.util.List;
  * Agents must not hold ANY references to common objects or references to each other.
  */
 public class AgentsFactory {
-    private static IAgentFactory iAgentFactory = new ExampleAgentFactory();
+    private final static IAgentFactory agentFactory = new AgentFactoryImpl();
+
     static public List<Intruder> createIntruders(int number) {
-        return iAgentFactory.createIntruders(number);
+        return agentFactory.createIntruders(number);
     }
     static public List<Guard> createGuards(int number) {
-        return iAgentFactory.createGuards(number);
+        return agentFactory.createGuards(number);
     }
+
 }
