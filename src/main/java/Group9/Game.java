@@ -335,6 +335,7 @@ public class Game implements Runnable {
                 lockin(() -> {
                     final IntruderAction action = intruder.getAgent().getAction(this.generateIntruderPercepts(intruder));
                     actionSuccess.put(intruder, executeAction(intruder, action));
+                    System.out.println(actionSuccess.toString());
                 });
 
                 if((winner = checkForWinner()) != null)

@@ -2,6 +2,8 @@ package Group8.Agents;
 
 import Interop.Agent.Guard;
 import Interop.Agent.Intruder;
+import Group9.agent.factories.IAgentFactory;
+import Group9.agent.*;
 
 import java.util.Collections;
 import java.util.List;
