@@ -1,10 +1,11 @@
 package Group9;
 
+import Group8.Agents.ExampleAgentFactory;
 import Group9.agent.container.AgentContainer;
 import Group9.agent.container.GuardContainer;
 import Group9.agent.container.IntruderContainer;
 import Group9.agent.factories.DefaultAgentFactory;
-import Group9.agent.factories.IAgentFactory;
+import Group8.Agents.IAgentFactory;
 import Group9.map.GameMap;
 import Group9.map.GameSettings;
 import Group9.map.ViewRange;
@@ -75,7 +76,7 @@ public class Game implements Runnable {
 
     public Game(GameMap gameMap, final boolean queryIntent)
     {
-        this(gameMap, new DefaultAgentFactory(), queryIntent, -1, null);
+        this(gameMap, new ExampleAgentFactory(), queryIntent, -1, null);
     }
 
     public Game(GameMap gameMap, IAgentFactory agentFactory, final boolean queryIntent)

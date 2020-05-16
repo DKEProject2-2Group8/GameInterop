@@ -1,5 +1,6 @@
 package Group9.agent.factories;
 
+import Group8.Agents.IAgentFactory;
 import Interop.Action.Move;
 import Interop.Action.NoAction;
 import Interop.Agent.Guard;
