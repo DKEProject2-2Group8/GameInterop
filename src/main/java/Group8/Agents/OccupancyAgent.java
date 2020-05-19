@@ -58,6 +58,7 @@ public class OccupancyAgent implements Guard {
 
     double xPosition, yPosition;
     Distance rangeDistance = percepts.getVision().getFieldOfView().getRange();
+    Distance maxMoveDistance;
 
     private int suroundUpdateIteration = 1;
     private ObjectPercept objectPercept;
@@ -147,15 +148,15 @@ public class OccupancyAgent implements Guard {
 
         if(!percepts.wasLastActionExecuted())
         {
-            if(Math.random() < 0.1)
+            if(Math.random() < 0.2)
             {
                 return new DropPheromone(SmellPerceptType.values()[(int) (Math.random() * SmellPerceptType.values().length)]);
             }
             return new Rotate(Angle.fromRadians(percepts.getScenarioGuardPercepts().getScenarioPercepts().getMaxRotationAngle().getRadians() * Game._RANDOM.nextDouble()));
 
         } else {
-            Distance distance = new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts));
-            return new Move(distance);
+            maxMoveDistance = new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts));
+            return new Move(maxMoveDistance);
         }
     }
 
@@ -801,6 +802,42 @@ public class OccupancyAgent implements Guard {
 //        else {
 //
 //        }
+    }
+
+    //linking up path planning would be better in the future.
+    /**
+     * This function finds the minimum cost in Log-map as to the direction in which the agent would navigate towards
+     * @return Angle that the agent should take as next move set.
+     */
+    public void minimumCost() {
+        //this indicates the direction the agent would need to navigate towards
+        double[][] exploration;
+        double threshold = 1.5;
+
+        //NW case
+        if(xPosition-maxMoveDistance.getValue() <= threshold && yPosition-maxMoveDistance.getValue() <= threshold) {
+
+        }
+        //NE
+        else if(xPosition >= occupancyGrid.logMap.length-threshold && yPosition-maxMoveDistance.getValue() <= threshold) {
+
+        }
+        //SE
+        else if(xPosition-maxMoveDistance.getValue() <= threshold && yPosition >= occupancyGrid.logMap.length - threshold) {
+
+        }
+        //SW
+        else if(xPosition >= occupancyGrid.logMap.length-threshold && yPosition >= occupancyGrid.logMap.length - threshold) {
+
+        }
+
+        //N
+
+        //S
+
+        //E
+
+        //W
     }
 
 }
