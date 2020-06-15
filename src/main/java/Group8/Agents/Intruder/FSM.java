@@ -10,7 +10,7 @@ import Interop.Percept.IntruderPercepts;
  */
 public class FSM implements Intruder {
 
-    private Group8.PathFinding.FSM FSM;
+    private Group8.Agents.Intruder.Algorithm.FSM FSM;
     private static int intruderCount = 0;
     private static int currentIntruder = 1;
     private boolean init;
@@ -21,7 +21,7 @@ public class FSM implements Intruder {
     public IntruderAction getAction(IntruderPercepts percepts){
         init = false;
         if(FSM == null){
-            FSM = new Group8.PathFinding.FSM(percepts);
+            FSM = new Group8.Agents.Intruder.Algorithm.FSM(percepts);
             intruderCount++;
             init = true;
         }

@@ -1,4 +1,4 @@
-package Group8.PathFinding;
+package Group8.Agents.Intruder.Algorithm;
 
 import Group8.Agents.Intruder.IntruderUtils;
 import Group9.Game;
