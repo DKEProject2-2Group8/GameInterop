@@ -1,5 +1,6 @@
 package Group8.Agents;
 
+import Group8.Agents.Guard.OccupancyAgent;
 import Group8.Agents.Intruder.FSM;
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
 import Group9.agent.RandomAgent;
