@@ -1,6 +1,5 @@
 package Group8.Agents.Guard;
 
-import Group8.PathFinding.FSM;
 import Interop.Action.GuardAction;
 import Interop.Action.IntruderAction;
 import Interop.Percept.GuardPercepts;
