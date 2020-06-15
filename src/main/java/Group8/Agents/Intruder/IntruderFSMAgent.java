@@ -1,5 +1,6 @@
 package Group8.Agents.Intruder;
 
+import Group8.Agents.Intruder.Algorithm.IntruderFSM;
 import Interop.Action.IntruderAction;
 import Interop.Agent.Intruder;
 import Interop.Percept.IntruderPercepts;
@@ -8,9 +9,9 @@ import Interop.Percept.IntruderPercepts;
 /**
  * This agent will only focus on getting to the target and will not consider anything else
  */
-public class FSM implements Intruder {
+public class IntruderFSMAgent implements Intruder {
 
-    private Group8.Agents.Intruder.Algorithm.FSM FSM;
+    private IntruderFSM IntruderFSM;
     private static int intruderCount = 0;
     private static int currentIntruder = 1;
     private boolean init;
@@ -20,15 +21,15 @@ public class FSM implements Intruder {
     @Override
     public IntruderAction getAction(IntruderPercepts percepts){
         init = false;
-        if(FSM == null){
-            FSM = new Group8.Agents.Intruder.Algorithm.FSM(percepts);
+        if(IntruderFSM == null){
+            IntruderFSM = new IntruderFSM(percepts);
             intruderCount++;
             init = true;
         }
 
 
         //nextIntruder();
-        return FSM.getMoveIntruder(percepts);
+        return IntruderFSM.getMoveIntruder(percepts);
     }
 
     private void nextIntruder(){

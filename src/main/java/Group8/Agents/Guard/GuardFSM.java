@@ -1,34 +1,38 @@
-package Group8.Agents.Intruder.Algorithm;
+package Group8.Agents.Guard;
 
-import Group8.Agents.Intruder.IntruderUtils;
+
 import Group9.Game;
-import Interop.Action.*;
+import Interop.Action.GuardAction;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
-import Interop.Percept.IntruderPercepts;
+import Interop.Percept.GuardPercepts;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 import Interop.Utils.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
-import static Group8.Agents.Intruder.IntruderUtils.*;
+import static Group8.Agents.Guard.GuardUtils.*;
+
 
 /**
  * @author Luc
  * Q-based state machine thingy
  */
-public class FSM {
+public class GuardFSM {
 
     private double COLLISION_ROT = Math.PI;
 
     // Represents the queue containing actions with low priority
-    private LinkedList<IntruderAction> actionQueue;
+    private LinkedList<GuardAction> actionQueue;
     // Represents the queue containing actions with high priority
-    private LinkedList<IntruderAction> prioQueue;
+    private LinkedList<GuardAction> prioQueue;
 
-    private IntruderPercepts currentPercepts;
+    private GuardPercepts currentPercepts;
 
     private EscapeStrategy escapeStrategy;
     private Phase phase = Phase.Explore;
@@ -47,13 +51,13 @@ public class FSM {
     }
 
 
-    public FSM(IntruderPercepts percepts) {
+    public GuardFSM(GuardPercepts percepts) {
         actionQueue = new LinkedList<>();
         prioQueue = new LinkedList<>();
         currentPercepts = percepts;
     }
 
-    public IntruderAction getMoveIntruder(IntruderPercepts percepts) {
+    public GuardAction getMoveGuard(GuardPercepts percepts) {
         currentPercepts = percepts;
         boolean ic = predictCollision(percepts);
         System.out.println(String.format("Collision is imminent: %b",ic));
@@ -68,7 +72,7 @@ public class FSM {
         else {
             check = true;
             if(!percepts.wasLastActionExecuted()){
-                generateRotationSequence(percepts,Angle.fromRadians(COLLISION_ROT));
+                generateRotationSequence(percepts, Angle.fromRadians(COLLISION_ROT));
             }
             if(this.phase == Phase.CircumNav){
                 // Col is the closest collider
@@ -144,9 +148,9 @@ public class FSM {
                             return prioQueue.poll();
                             // This already returns an action in order to escape the if statements, next iteration we will execute different code since the phase has shifted
                         } else {
-                            // Intruder in vision
+                            // Guard in vision
                             // TODO : Implement
-                           // generateSplittingSequence();
+                            // generateSplittingSequence();
                         }
                     }
                 }
@@ -159,7 +163,8 @@ public class FSM {
 
             // Return action from action queue
             if (actionQueue.peek() == null) {
-                bLine();
+                //bLine();
+                // TODO: figure out a replacement function for this
             }
             return actionQueue.poll();
         }
@@ -208,13 +213,13 @@ public class FSM {
 
     }
 
-    private void bLine(){
-        if (!((Math.abs(currentPercepts.getTargetDirection().getRadians())) <= EPS)) {
-            List<IntruderAction> actions = IntruderUtils.generateRotationSequence(currentPercepts, currentPercepts.getTargetDirection());
-            actionQueue.addAll(actions);
-        }
-        actionQueue.add(generateMaxMove(currentPercepts));
-    }
+//    private void bLine(){
+//        if (!((Math.abs(currentPercepts.getTargetDirection().getRadians())) <= EPS)) {
+//            List<GuardAction> actions = GuardUtils.generateRotationSequence(currentPercepts, currentPercepts.getTargetDirection());
+//            actionQueue.addAll(actions);
+//        }
+//        actionQueue.add(generateMaxMove(currentPercepts));
+//    }
 
 }
 
@@ -224,29 +229,25 @@ public class FSM {
  */
 class EscapeStrategy{
 
-    private IntruderPercepts percepts;
-    private LinkedList<IntruderAction> actionQueue;
+    private GuardPercepts percepts;
+    private LinkedList<GuardAction> actionQueue;
 
     // Initial variable rotation
     private final double IRV = Math.PI/4;
     private final double DEFAULT_ROT_RAD = Math.PI;
 
 
-    private InitialRotation initialRotation = InitialRotation.Full;
-    private SprintManagement sprintManagement = SprintManagement.Immediate;
+    private EscapeStrategy.InitialRotation initialRotation = EscapeStrategy.InitialRotation.Full;
 
-    public EscapeStrategy(LinkedList<IntruderAction> actionQueue) {
+    public EscapeStrategy(LinkedList<GuardAction> actionQueue) {
         this.actionQueue = actionQueue;
     }
 
-    public void handle(IntruderPercepts percepts, boolean init){
+    public void handle(GuardPercepts percepts, boolean init){
         // Update percepts
         this.percepts = percepts;
         if(init){
-            List<IntruderAction> actions = IntruderUtils.generateRotationSequence(percepts,getInitialRotation());
-            if(sprintManagement == SprintManagement.Immediate){
-                actions.add(generateMaxSprint(percepts));
-            }
+            List<GuardAction> actions = GuardUtils.generateRotationSequence(percepts,getInitialRotation());
 
             // Add all generated actions to the action queue
             actionQueue.addAll(actions);
@@ -259,11 +260,6 @@ class EscapeStrategy{
     // Rotation upon first sight of guard
     private enum InitialRotation{
         Full,Var,Calculated,None
-    }
-
-    // Sprinting options upon first sight of guard
-    private enum SprintManagement{
-        Immediate,ThroughShade,AfterCorner
     }
 
     private Angle getInitialRotation(){

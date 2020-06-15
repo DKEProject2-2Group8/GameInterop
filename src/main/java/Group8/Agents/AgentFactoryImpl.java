@@ -1,10 +1,9 @@
 package Group8.Agents;
 
 import Group8.Agents.Guard.OccupancyAgent;
-import Group8.Agents.Intruder.FSM;
+import Group8.Agents.Intruder.IntruderFSMAgent;
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
 import Group9.agent.RandomAgent;
-import Group9.agent.RandomIntruderAgent;
 import Group9.agent.factories.IAgentFactory;
 import Interop.Agent.Guard;
 import Interop.Agent.Intruder;
@@ -31,7 +30,7 @@ public class AgentFactoryImpl implements IAgentFactory{
         for(int i=0; i<number; i++){
             switch(INTRUDER_ALGORITHM) {
                 case FSM:
-                    intruders.add(new FSM());
+                    intruders.add(new IntruderFSMAgent());
                     break;
                 case SIMPLE_PATH:
                     intruders.add(new SimplePathfindingIntruder());
