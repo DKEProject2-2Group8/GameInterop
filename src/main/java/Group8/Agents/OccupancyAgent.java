@@ -64,6 +64,9 @@ public class OccupancyAgent implements Guard {
     private ObjectPercept objectPercept;
     private ObjectPercepts objectPercepts;
 
+    Angle rotateAngleOld;
+    Angle rotateAngleNew;
+
     public OccupancyAgent() {
         this.occupancyGrid = new OccupancyGrid();
         xPosition = occupancyGrid.occupancyGrid.length/2.0;
@@ -145,19 +148,25 @@ public class OccupancyAgent implements Guard {
     public GuardAction getAction(GuardPercepts percepts) {
         //update the log-map and occupancy grid
         mapping(percepts);
-
         if(!percepts.wasLastActionExecuted())
         {
             if(Math.random() < 0.2)
             {
                 return new DropPheromone(SmellPerceptType.values()[(int) (Math.random() * SmellPerceptType.values().length)]);
             }
-            return new Rotate(Angle.fromRadians(percepts.getScenarioGuardPercepts().getScenarioPercepts().getMaxRotationAngle().getRadians() * Game._RANDOM.nextDouble()));
+            rotateAngleNew = Angle.fromRadians(percepts.getScenarioGuardPercepts().getScenarioPercepts().getMaxRotationAngle().getRadians() * Game._RANDOM.nextDouble());
+            return new Rotate(rotateAngleNew);
 
         } else {
             maxMoveDistance = new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts));
+            //radian sometimes not turning negative
+            //radians in this case is Math.Atan(percentageOfSlope/100)
+            System.out.println(maxMoveDistance.toString());
+            xPosition+=maxMoveDistance.getValue()*rotateAngleNew.getRadians();
+            yPosition+=maxMoveDistance.getValue()*rotateAngleNew.getRadians();
             return new Move(maxMoveDistance);
         }
+
     }
 
     /**
@@ -286,7 +295,6 @@ public class OccupancyAgent implements Guard {
             // Boolean occupancy.
             for (int x = x1, y = y1; x <= x2; x++) {
                 if (x == x2 && y == y2) {
-
                     //set only last value to true
                     occupancyGrid.update(x, y);
                     break;
