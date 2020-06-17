@@ -13,26 +13,26 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class GUI extends Application{
 
-    public static final boolean USE_OWN_GUI = false;
+    public static final boolean USE_OWN_GUI = true;
 
-    private final int DEFAULT_WIDTH = 800, DEFAULT_HEIGHT = 600;
+    private final int DEFAULT_WIDTH = 800, DEFAULT_HEIGHT = 600, TICKS = 15;
 
     // If we need to pass a specific factory make sure to use -1 for ticks since that will be the fastest
     // DefaultAgentFactory needs to be replaced!
-    private final Game game = new Game(Parser.parseFile("./src/main/java/Group9/map/maps/test_2.map"),new DefaultAgentFactory(), false, 15,null);
+    private Game game = new Game(Parser.parseFile("./src/main/java/Group9/map/maps/test_2.map"),new DefaultAgentFactory(), false, TICKS,null);
+    // Unfortunately I think I cannot develop a map changing Button or a tick changing button because we don't have something like the MainController like group 9.
 
-    private final GameScene scene = new GameScene(new StackPane(),game.getGameMap());
+    private final GameScene scene = new GameScene(new StackPane(),game.getGameMap(),this);
 
     private AnimationTimer timer;
-
-
-
 
     /**
      * Launches the GUI
@@ -76,6 +76,18 @@ public class GUI extends Application{
             }
         };
         timer.start();
+    }
+
+    public void restart() {
+        timer.start(); //TODO not working
+    }
+
+    public void playpause(boolean play) {
+        if(play) {
+            timer.start();
+        } else {
+            timer.stop();
+        }
     }
 
     private void drawMovables(List<GuardContainer> guards, List<IntruderContainer> intruders, List<DynamicObject<?>> objects){
