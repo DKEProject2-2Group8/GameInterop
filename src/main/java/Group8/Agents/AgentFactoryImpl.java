@@ -1,5 +1,6 @@
 package Group8.Agents;
 
+import Group8.Agents.Guard.GuardFSMAgent;
 import Group8.Agents.Guard.OccupancyAgent;
 import Group8.Agents.Intruder.IntruderFSMAgent;
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
@@ -12,19 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentFactoryImpl implements IAgentFactory{
-    public static final AlgoG GUARD_ALGORITHM = AlgoG.OCCUPANCY_AGENT;
+    public static final AlgoG GUARD_ALGORITHM = AlgoG.FSM;
     public static final AlgoI INTRUDER_ALGORITHM = AlgoI.FSM;
 
     public enum AlgoI {
         SIMPLE_PATH,FSM
     }
     public enum AlgoG {
-        AI1,OCCUPANCY_AGENT
+        AI1,OCCUPANCY_AGENT,FSM
 
     }
 
     @Override
-     public List<Intruder> createIntruders(int number) {
+    public List<Intruder> createIntruders(int number) {
         List<Intruder> intruders = new ArrayList<>();
 
         for(int i=0; i<number; i++){
@@ -42,7 +43,7 @@ public class AgentFactoryImpl implements IAgentFactory{
     }
 
     @Override
-     public List<Guard> createGuards(int number) {
+    public List<Guard> createGuards(int number) {
         List<Guard> guards = new ArrayList<>();
 
         for(int i=0; i<number; i++){
@@ -53,6 +54,9 @@ public class AgentFactoryImpl implements IAgentFactory{
                     break;
                 case OCCUPANCY_AGENT:
                     guards.add(new OccupancyAgent());
+                    break;
+                case FSM:
+                    guards.add(new GuardFSMAgent());
                     break;
             }
         }

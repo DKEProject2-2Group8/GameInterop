@@ -1,6 +1,7 @@
 package Group8.Agents.Guard;
 
 import Interop.Action.GuardAction;
+import Interop.Action.NoAction;
 import Interop.Agent.Guard;
 import Interop.Percept.GuardPercepts;
 
@@ -43,7 +44,11 @@ public class GuardFSMAgent implements Guard {
 
 
         //next();
-        return guardFSM.getMoveGuard(percepts);
+        GuardAction action = guardFSM.getMoveGuard(percepts);
+        if(action == null){
+            return new NoAction();
+        }
+        return action;
     }
 }
 

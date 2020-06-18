@@ -9,6 +9,7 @@ import Interop.Geometry.Point;
 import Interop.Percept.GuardPercepts;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
+import Interop.Percept.Vision.ObjectPercepts;
 import Interop.Utils.Utils;
 
 import java.util.ArrayList;
@@ -34,147 +35,159 @@ public class GuardFSM {
 
     private GuardPercepts currentPercepts;
 
-    private EscapeStrategy escapeStrategy;
+    private ChaseStrategy chaseStrategy;
     private Phase phase = Phase.Explore;
 
-    private List<List<ObjectPercept>> generalObstructions;
-    private List<ObjectPercept> objectPercepts;
-    private List<ObjectPercept> agentObstructions;
+    private ArrayList<ObjectPercept> intruderPercepts;
+
+    private Angle angle;
+    private int stepsToTarget;
+    private boolean startAngle;
+    private final int REQ_STEPS = 5;
 
     private boolean check = false;
-
-
-
+    private boolean isCircumNavigating = false;
 
     private enum Phase{
-        Explore,Escape,CircumNav
+        Explore, Chase,CircumNav
     }
-
 
     public GuardFSM(GuardPercepts percepts) {
         actionQueue = new LinkedList<>();
         prioQueue = new LinkedList<>();
         currentPercepts = percepts;
+        angle = Angle.fromRadians(Math.PI*2*Game._RANDOM.nextDouble());
+        startAngle = false;
+        stepsToTarget = 0;
     }
 
     public GuardAction getMoveGuard(GuardPercepts percepts) {
         currentPercepts = percepts;
-        boolean ic = predictCollision(percepts);
-        System.out.println(String.format("Collision is imminent: %b",ic));
-        if(ic){
-            this.phase = Phase.CircumNav;
+
+        if(this.phase == Phase.Chase){
+            System.out.println("Chasing");
+        }
+
+        // Check for imminent collision
+        boolean predictCollision = predictCollision(percepts);
+        if(predictCollision){
+            if(this.phase != Phase.Chase) {
+                this.phase = Phase.CircumNav;
+            }
             actionQueue.clear();
         }
-        if(!prioQueue.isEmpty() && percepts.wasLastActionExecuted()){
-            actionQueue.clear();
+        if(!percepts.wasLastActionExecuted() && this.phase != Phase.Chase){
+            prioQueue.clear();
+            prioQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(COLLISION_ROT)));
             return prioQueue.poll();
         }
         else {
-            check = true;
-            if(!percepts.wasLastActionExecuted()){
-                generateRotationSequence(percepts, Angle.fromRadians(COLLISION_ROT));
-            }
-            if(this.phase == Phase.CircumNav){
-                // Col is the closest collider
-                ObjectPercept col = null;
-                generateObstructions();
-                for (ObjectPercept o :
-                        objectPercepts) {
-                    if(col == null){
-                        col = o;
-                    }
-                    else{
-                        if(new Distance(new Point(0,0),o.getPoint()).getValue() < new Distance(new Point(0,0),col.getPoint()).getValue()){
-                            col = o;
-                        }
-                    }
 
+            if (!prioQueue.isEmpty()) {
+                return prioQueue.poll();
+            } else if (!actionQueue.isEmpty() && !predictCollision) {
+                if(isCircumNavigating){
+                    isCircumNavigating = false;
                 }
-                if(col != null){
-                    Angle angle = Angle.fromRadians(Utils.clockAngle(col.getPoint().getX(), col.getPoint().getY()));
-                    COLLISION_ROT = Math.PI/2 - angle.getRadians();
-                    if(angle.getRadians() > Math.PI/4){
-                        // Walk parallel to wall to right
-                        prioQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(-COLLISION_ROT)));
-                        prioQueue.add(generateMaxMove(percepts));
-                    }
-                    else if(angle.getRadians() < Math.PI/4){
-                        // Walk parallel to wall to left
-                        prioQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(COLLISION_ROT)));
-                        prioQueue.add(generateMaxMove(percepts));
-                    }
-                    else{
-                        if(angle.getRadians() == Math.PI/4){
-                            if(Game._RANDOM.nextBoolean()){
-                                // Go left
-                                prioQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(-COLLISION_ROT)));
-                            }
-                            else{
-                                // Go right
-                                prioQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(COLLISION_ROT)));
-                            }
-                            prioQueue.add(generateMaxMove(percepts));
-                        }
-                    }
-
-                }
-                else{
-                    if(!check) {
-                        prioQueue.add(generateMaxMove(percepts));
-                        actionQueue.addAll(generateRotationSequence(percepts, Angle.fromRadians(-COLLISION_ROT)));
-                    }else{
+                return actionQueue.poll();
+            } else {
+                if(isCircumNavigating){
+                    isCircumNavigating = false;
+                    if(this.phase == Phase.CircumNav){
                         switchState();
                     }
                 }
+                if (this.phase == Phase.CircumNav) {
+                    isCircumNavigating = true;
+                    // If a collision was predicted and it has not yet been handled, it needs to be handled first here!
+                    ObjectPercepts visionPercepts = percepts.getVision().getObjects();
+                    ObjectPercepts colliders = visionPercepts.filter(p -> p.getType() != ObjectPerceptType.EmptySpace);
+                    List<ObjectPercept> longEmpty = getLongEmptyList(visionPercepts,percepts);
+                    if(longEmpty.isEmpty()){
+                        // No rays that have maxlength point to EmptySpace
 
-            }
-            else if (this.phase == Phase.Explore) {
-                // Exploration strategy
-                if (actionQueue.peek() != null) {
-                    return actionQueue.poll();
-                }
+                    } else {
+                        // There is at least on ray of maxlength that points to EmptySpace
+                        ObjectPercept target = longEmpty.get(0);
+                        Angle rotationAngle = Angle.fromRadians(Utils.clockAngle(target.getPoint().getX(),target.getPoint().getY()));
+                        prioQueue.addAll(generateRotationSequence(percepts,rotationAngle));
+                        prioQueue.add(generateMaxMove(percepts));
+                        return prioQueue.poll();
+                    }
 
-                generateObstructions();
+                } else if (this.phase == Phase.Chase) {
+                    ObjectPercepts visionPercepts = percepts.getVision().getObjects();
+                    ObjectPercepts intruderObjectPercepts = visionPercepts.filter(p -> p.getType() == ObjectPerceptType.Intruder);
+                    ArrayList<ObjectPercept> intruderPercepts = perceptsToArrayList(intruderObjectPercepts);
+                    if(intruderPercepts.size() == 0){
+                        switchState();
+                    }
 
-                // Handle seeing other agents
-                if (!agentObstructions.isEmpty()) {
-                    // Obstruction seen
-                    for (ObjectPercept o :
-                            agentObstructions) {
-                        if (o.getType() == ObjectPerceptType.Guard) {
-                            // Switch state and generate escape behaviour
-                            switchState();
-                            // Execute first action generated by escape behaviour
-                            return prioQueue.poll();
-                            // This already returns an action in order to escape the if statements, next iteration we will execute different code since the phase has shifted
-                        } else {
-                            // Guard in vision
-                            // TODO : Implement
-                            // generateSplittingSequence();
+                } else if (this.phase == Phase.Explore) {
+                    // Do we see an intruder? If so start chasing
+                    ObjectPercepts visionPercepts = percepts.getVision().getObjects();
+                    ObjectPercepts intruderObjectPercepts = visionPercepts.filter(p -> p.getType() == ObjectPerceptType.Intruder);
+                    ArrayList<ObjectPercept> intruderPercepts = perceptsToArrayList(intruderObjectPercepts);
+                    this.intruderPercepts = intruderPercepts;
+                    if(intruderPercepts.size() > 0){
+                        switchState();
+                        return prioQueue.poll();
+                    }
+
+                    // Getting here means there is no intruder in vision
+                    // This is where the exploring method is defined
+                    if(!startAngle){
+                        startAngle = true;
+                        actionQueue.addAll(generateRotationSequence(percepts,angle));
+                        actionQueue.add(generateMaxMove(percepts));
+                        stepsToTarget++;
+                    }else{
+                        if(stepsToTarget >= REQ_STEPS){
+                            startAngle = false;
+                            stepsToTarget = 0;
+                            updateTargetAngle();
+                        } else{
+                            actionQueue.add(generateMaxMove(percepts));
+                            stepsToTarget++;
                         }
                     }
+                    actionQueue.add(generateMaxMove(percepts));
                 }
-
-            } else if (this.phase == Phase.Escape) {
-                // Escape strategy
-                escapeStrategy.handle(percepts, false);
+                if(!actionQueue.isEmpty()){
+                    return actionQueue.poll();
+                }
+                return generateMaxMove(percepts);
             }
-
-
-            // Return action from action queue
-            if (actionQueue.peek() == null) {
-                //bLine();
-                // TODO: figure out a replacement function for this
-            }
-            return actionQueue.poll();
         }
     }
 
-    private void generateObstructions(){
-        // Obstruction management
-        generalObstructions = checkObstructions(currentPercepts.getVision().getObjects().getAll());
-        objectPercepts = generalObstructions.get(0);
-        agentObstructions = generalObstructions.get(1);
+    private void updateTargetAngle(){
+        angle = Angle.fromRadians(Math.PI*2*Game._RANDOM.nextDouble());
+    }
+
+    private ArrayList<ObjectPercept> perceptsToArrayList(ObjectPercepts objectPercepts){
+        ArrayList<ObjectPercept> result = new ArrayList<>();
+        for (ObjectPercept op :
+                objectPercepts.getAll()) {
+            result.add(op);
+        }
+        return result;
+    }
+
+
+    private List<ObjectPercept> getLongEmptyList(ObjectPercepts objectPercepts, GuardPercepts percepts){
+        List<ObjectPercept> longEmpty = new ArrayList<>();
+        Distance viewRange = percepts.getVision().getFieldOfView().getRange();
+        Point p = new Point(0,0);
+
+        for (ObjectPercept o :
+                objectPercepts.getAll()) {
+            if(p.getDistance(o.getPoint()).getValue() == viewRange.getValue()
+                    && o.getType() == ObjectPerceptType.EmptySpace){
+                longEmpty.add(o);
+            }
+        }
+        return longEmpty;
     }
 
     private List<List<ObjectPercept>> checkObstructions(Set<ObjectPercept> obstructions){
@@ -197,9 +210,10 @@ public class GuardFSM {
 
     private void switchState(){
         if(this.phase == Phase.Explore){
-            this.phase = Phase.Escape;
-            escapeStrategy = new EscapeStrategy(prioQueue);
-            escapeStrategy.handle(currentPercepts,true);
+            this.phase = Phase.Chase;
+            prioQueue.clear();
+            chaseStrategy = new ChaseStrategy(prioQueue);
+            chaseStrategy.handle(currentPercepts,intruderPercepts);
         }
         else{
             this.phase = Phase.Explore;
@@ -213,71 +227,24 @@ public class GuardFSM {
 
     }
 
-//    private void bLine(){
-//        if (!((Math.abs(currentPercepts.getTargetDirection().getRadians())) <= EPS)) {
-//            List<GuardAction> actions = GuardUtils.generateRotationSequence(currentPercepts, currentPercepts.getTargetDirection());
-//            actionQueue.addAll(actions);
-//        }
-//        actionQueue.add(generateMaxMove(currentPercepts));
-//    }
-
 }
 
 /**
  * @Author Luc
  * Class that represents the strategy that can be used to escape
  */
-class EscapeStrategy{
+class ChaseStrategy {
 
-    private GuardPercepts percepts;
     private LinkedList<GuardAction> actionQueue;
 
-    // Initial variable rotation
-    private final double IRV = Math.PI/4;
-    private final double DEFAULT_ROT_RAD = Math.PI;
-
-
-    private EscapeStrategy.InitialRotation initialRotation = EscapeStrategy.InitialRotation.Full;
-
-    public EscapeStrategy(LinkedList<GuardAction> actionQueue) {
+    public ChaseStrategy(LinkedList<GuardAction> actionQueue) {
         this.actionQueue = actionQueue;
     }
 
-    public void handle(GuardPercepts percepts, boolean init){
-        // Update percepts
-        this.percepts = percepts;
-        if(init){
-            List<GuardAction> actions = GuardUtils.generateRotationSequence(percepts,getInitialRotation());
-
-            // Add all generated actions to the action queue
-            actionQueue.addAll(actions);
-        }
-        else{
-            actionQueue.add(generateMaxMove(percepts));
-        }
-    }
-
-    // Rotation upon first sight of guard
-    private enum InitialRotation{
-        Full,Var,Calculated,None
-    }
-
-    private Angle getInitialRotation(){
-        switch (initialRotation){
-            case Full:
-                return Angle.fromRadians(Math.PI);
-            case Var:
-                return Angle.fromRadians(IRV);
-            case Calculated:
-                return calcEscAngle();
-            case None:
-                return Angle.fromRadians(0);
-        }
-        return Angle.fromRadians(DEFAULT_ROT_RAD);
-    }
-
-    private Angle calcEscAngle() {
-        // TODO: Calculate the angle at which you see the guard and then rotate away
-        return Angle.fromRadians(DEFAULT_ROT_RAD);
+    public void handle(GuardPercepts percepts, ArrayList<ObjectPercept> intruderPercepts){
+        // Implement a strategy to chase an intruder in sight
+        ObjectPercept intruder = intruderPercepts.get(0);
+        actionQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(Utils.clockAngle(intruder.getPoint().getX(),intruder.getPoint().getY()))));
+        actionQueue.add(generateMaxMove(percepts));
     }
 }

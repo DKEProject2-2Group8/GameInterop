@@ -76,7 +76,7 @@ public class GuardUtils {
             for (ObjectPercept o :
                     colliders) {
                 Distance d = new Distance(new Point(0, 0), o.getPoint());
-                System.out.println(String.format("Distance to object: %f of type: %s",d.getValue(),o.getType()));
+                //System.out.println(String.format("Distance to object: %f of type: %s",d.getValue(),o.getType()));
                 if (d.getValue() <= THRESHOLD * 0.4) {
                     return true;
                 }
