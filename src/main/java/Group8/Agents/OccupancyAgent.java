@@ -294,21 +294,26 @@ public class OccupancyAgent implements Guard {
 
             // Boolean occupancy.
             for (int x = x1, y = y1; x <= x2; x++) {
-                if (x == x2 && y == y2 ) {
-                    //set only last value to true
-                    occupancyGrid.update(x, y);
-                    break;
-                } else {
-                    occupancyGrid.update(x, y, false);
+                //just set to false in agents FOV
+                occupancyGrid.update(x, y, false);
 
-                    // Add slope to increment angle formed
-                    slope_error_new += m_new;
+                // Add slope to increment angle formed
+                slope_error_new += m_new;
 
-                    // Slope error reached limit, time to
-                    // increment y and update slope error.
-                    if (slope_error_new >= 0) {
-                        y++;
-                        slope_error_new -= 2 * (x2 - x1);
+                // Slope error reached limit, time to
+                // increment y and update slope error.
+                if (slope_error_new >= 0) {
+                    y++;
+                    slope_error_new -= 2 * (x2 - x1);
+                }
+
+                //get the value and set to true if there is a wall.
+                if(x==objectPercept.getPoint().getX() && y == objectPercept.getPoint().getY()) {
+                    //only walls are solid
+                    if(objectPercept.getType().isSolid()) {
+                        occupancyGrid.update(x,y, true);
+                    } else {
+                        occupancyGrid.update(x,y, false);
                     }
                 }
             }
@@ -383,7 +388,7 @@ public class OccupancyAgent implements Guard {
             //Agent is facing the endpoint
             else {
                 //TODO: rotate the other direction.
-                System.out.println("Agent is staring at a corner.  You need to add a case if agent is staring at a endpoint.");
+                System.out.println("Agent is staring at a corner.  You need to add a case if this message appears");
             }
 
             //countTrue not updating?
