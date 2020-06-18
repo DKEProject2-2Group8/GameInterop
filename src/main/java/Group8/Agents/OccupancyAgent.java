@@ -294,7 +294,7 @@ public class OccupancyAgent implements Guard {
 
             // Boolean occupancy.
             for (int x = x1, y = y1; x <= x2; x++) {
-                if (x == x2 && y == y2) {
+                if (x == x2 && y == y2 ) {
                     //set only last value to true
                     occupancyGrid.update(x, y);
                     break;
