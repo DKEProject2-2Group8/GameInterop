@@ -5,6 +5,8 @@ import Interop.Action.NoAction;
 import Interop.Agent.Guard;
 import Interop.Percept.GuardPercepts;
 
+import static Group8.Agents.Guard.GuardFSM.VERBOSE;
+
 public class GuardFSMAgent implements Guard {
     private GuardFSM guardFSM;
     private static int guardCount = 0;
@@ -46,7 +48,15 @@ public class GuardFSMAgent implements Guard {
         //next();
         GuardAction action = guardFSM.getMoveGuard(percepts);
         if(action == null){
+            if (VERBOSE) {
+                System.out.println(
+                        String.format("returning NoAction since FSM produces null\n"));
+            }
             return new NoAction();
+        }
+        if (VERBOSE) {
+            System.out.println(
+                    String.format("return action produced by FSM\n"));
         }
         return action;
     }

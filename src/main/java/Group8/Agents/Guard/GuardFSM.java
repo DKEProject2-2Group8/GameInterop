@@ -3,6 +3,7 @@ package Group8.Agents.Guard;
 
 import Group9.Game;
 import Interop.Action.GuardAction;
+import Interop.Action.Rotate;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
@@ -11,6 +12,7 @@ import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 import Interop.Percept.Vision.ObjectPercepts;
 import Interop.Utils.Utils;
+import org.w3c.dom.ls.LSOutput;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -25,6 +27,8 @@ import static Group8.Agents.Guard.GuardUtils.*;
  * Q-based state machine thingy
  */
 public class GuardFSM {
+
+    public static final boolean VERBOSE = true;
 
     private double COLLISION_ROT = Math.PI;
 
@@ -52,31 +56,62 @@ public class GuardFSM {
         Explore, Chase,CircumNav
     }
 
+
     public GuardFSM(GuardPercepts percepts) {
         actionQueue = new LinkedList<>();
         prioQueue = new LinkedList<>();
         currentPercepts = percepts;
         angle = Angle.fromRadians(Math.PI*2*Game._RANDOM.nextDouble());
+        chaseStrategy = new ChaseStrategy(prioQueue);
         startAngle = false;
         stepsToTarget = 0;
     }
 
     public GuardAction getMoveGuard(GuardPercepts percepts) {
-        currentPercepts = percepts;
 
-        if(this.phase == Phase.Chase){
-            System.out.println("Chasing");
+        if (VERBOSE) {
+            System.out.println("--------------- New guard move query ---------------\n");
         }
+
+
+        currentPercepts = percepts;
 
         // Check for imminent collision
         boolean predictCollision = predictCollision(percepts);
+        if (VERBOSE) {
+            System.out.println(String.format("Predicting collision: %b",predictCollision));
+        }
         if(predictCollision){
             if(this.phase != Phase.Chase) {
                 this.phase = Phase.CircumNav;
+                if (VERBOSE) {
+                    System.out.println(String.format("Transition to Circumnavigation because predictCollision: %b",predictCollision));
+                }
+
             }
-            actionQueue.clear();
+            // Reset exploration
+            resetExploration();
+        } else {
+            isCircumNavigating = false;
+            getIntruderVisionPercepts(percepts);
+            if(intruderPercepts.size() > 0){
+                this.phase = Phase.Chase;
+                prioQueue.clear();
+            }
+            else{
+                this.phase = Phase.Explore;
+            }
+            if (VERBOSE) {
+                System.out.println(
+                        String.format("No longer CircumNavigating (isCircumNavigating: %b), current phase: %s",isCircumNavigating,phase.toString()));
+            }
         }
         if(!percepts.wasLastActionExecuted() && this.phase != Phase.Chase){
+            if (VERBOSE) {
+                System.out.println(
+                        String.format("Either the last action was not executed(%b) or the current phase is chasing(%b)",
+                                !percepts.wasLastActionExecuted(),this.phase != Phase.Chase));
+            }
             prioQueue.clear();
             prioQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(COLLISION_ROT)));
             return prioQueue.poll();
@@ -84,56 +119,104 @@ public class GuardFSM {
         else {
 
             if (!prioQueue.isEmpty()) {
+                if (VERBOSE) {
+                    System.out.println(
+                            String.format("PrioQueue was not empty, popping action"));
+                }
                 return prioQueue.poll();
-            } else if (!actionQueue.isEmpty() && !predictCollision) {
-                if(isCircumNavigating){
-                    isCircumNavigating = false;
+            } else if (!actionQueue.isEmpty() && !isCircumNavigating) {
+                if (VERBOSE) {
+                    System.out.println(
+                            String.format("actionQueue was not empty (Also not CircumNavigating, popping action)"));
                 }
                 return actionQueue.poll();
             } else {
-                if(isCircumNavigating){
-                    isCircumNavigating = false;
-                    if(this.phase == Phase.CircumNav){
-                        switchState();
-                    }
+                if (VERBOSE) {
+                    System.out.println(
+                            String.format("Either all queues are empty or we are CircumNavigating (isCircumNavigating: %b)",isCircumNavigating));
                 }
                 if (this.phase == Phase.CircumNav) {
                     isCircumNavigating = true;
+                    if (VERBOSE) {
+                        System.out.println(
+                                String.format("Staring CircumNavigation calculations"));
+                    }
                     // If a collision was predicted and it has not yet been handled, it needs to be handled first here!
                     ObjectPercepts visionPercepts = percepts.getVision().getObjects();
                     ObjectPercepts colliders = visionPercepts.filter(p -> p.getType() != ObjectPerceptType.EmptySpace);
                     List<ObjectPercept> longEmpty = getLongEmptyList(visionPercepts,percepts);
                     if(longEmpty.isEmpty()){
                         // No rays that have maxlength point to EmptySpace
+                        if (VERBOSE) {
+                            System.out.println(
+                                    String.format("No maximum length rays pointing to empty space, rotating away from colliders"));
+                        }
 
+                        // Rotate away from colliders
+                        prioQueue.addAll(generateRotationSequence(percepts, Angle.fromRadians(COLLISION_ROT)));
                     } else {
                         // There is at least on ray of maxlength that points to EmptySpace
+                        if (VERBOSE) {
+                            System.out.println(
+                                    String.format("At least one ray of maximum length pointing to empty space"));
+                        }
                         ObjectPercept target = longEmpty.get(0);
                         Angle rotationAngle = Angle.fromRadians(Utils.clockAngle(target.getPoint().getX(),target.getPoint().getY()));
                         prioQueue.addAll(generateRotationSequence(percepts,rotationAngle));
                         prioQueue.add(generateMaxMove(percepts));
+                        if (VERBOSE) {
+                            System.out.println(
+                                    String.format("Generated actions to go towards the long ray pointing to empty space, prioQueue length: %d",prioQueue.size()));
+                        }
                         return prioQueue.poll();
                     }
 
                 } else if (this.phase == Phase.Chase) {
-                    ObjectPercepts visionPercepts = percepts.getVision().getObjects();
-                    ObjectPercepts intruderObjectPercepts = visionPercepts.filter(p -> p.getType() == ObjectPerceptType.Intruder);
-                    ArrayList<ObjectPercept> intruderPercepts = perceptsToArrayList(intruderObjectPercepts);
+                    if (VERBOSE) {
+                        System.out.println(
+                                String.format("Entered Chasing state"));
+                    }
+                    getIntruderVisionPercepts(percepts);
+                    // Check if there is still a intruder in vision
                     if(intruderPercepts.size() == 0){
-                        switchState();
+                        if (VERBOSE) {
+                            System.out.println(
+                                    String.format("No intruder in vision, transitioning to Exploration"));
+                        }
+                        this.phase = Phase.Explore;
+                    } else {
+                        // Intruder in vision
+                        // Handle chasing
+                        if (VERBOSE) {
+                            System.out.println(
+                                    String.format("Intruder in vision, chasing"));
+                        }
+                        chaseStrategy.handle(percepts, intruderPercepts);
                     }
 
                 } else if (this.phase == Phase.Explore) {
+                    if (VERBOSE) {
+                        System.out.println(
+                                String.format("Entering exploration phase"));
+                    }
                     // Do we see an intruder? If so start chasing
-                    ObjectPercepts visionPercepts = percepts.getVision().getObjects();
-                    ObjectPercepts intruderObjectPercepts = visionPercepts.filter(p -> p.getType() == ObjectPerceptType.Intruder);
-                    ArrayList<ObjectPercept> intruderPercepts = perceptsToArrayList(intruderObjectPercepts);
-                    this.intruderPercepts = intruderPercepts;
+
+                    getIntruderVisionPercepts(percepts);
                     if(intruderPercepts.size() > 0){
-                        switchState();
+                        if (VERBOSE) {
+                            System.out.println(
+                                    String.format("Intruder in vision while in phase: %s",phase.toString()));
+                        }
+                        this.phase = Phase.Chase;
+                        getIntruderVisionPercepts(percepts);
+                        chaseStrategy.handle(percepts,intruderPercepts);
                         return prioQueue.poll();
                     }
 
+                    if (VERBOSE) {
+                        System.out.println(
+                                String.format("Deploying exploration strategy"));
+                    }
                     // Getting here means there is no intruder in vision
                     // This is where the exploring method is defined
                     if(!startAngle){
@@ -156,9 +239,27 @@ public class GuardFSM {
                 if(!actionQueue.isEmpty()){
                     return actionQueue.poll();
                 }
+
+                if (VERBOSE) {
+                    System.out.println(
+                            String.format("Backup deployed"));
+                }
                 return generateMaxMove(percepts);
             }
         }
+    }
+
+    private void getIntruderVisionPercepts(GuardPercepts percepts) {
+        ObjectPercepts visionPercepts = percepts.getVision().getObjects();
+        ObjectPercepts intruderObjectPercepts = visionPercepts.filter(p -> p.getType() == ObjectPerceptType.Intruder);
+        intruderPercepts = perceptsToArrayList(intruderObjectPercepts);
+    }
+
+    private void resetExploration(){
+        startAngle = false;
+        stepsToTarget = 0;
+        updateTargetAngle();
+        actionQueue.clear();
     }
 
     private void updateTargetAngle(){
@@ -208,25 +309,13 @@ public class GuardFSM {
         return lists;
     }
 
-    private void switchState(){
-        if(this.phase == Phase.Explore){
-            this.phase = Phase.Chase;
-            prioQueue.clear();
-            chaseStrategy = new ChaseStrategy(prioQueue);
-            chaseStrategy.handle(currentPercepts,intruderPercepts);
-        }
-        else{
-            this.phase = Phase.Explore;
-        }
-    }
+
+
 
     private void generateSplittingSequence(){
         // Clear the queue since the splitting tactic overrules earlier generated actions
         actionQueue.clear();
-
-
     }
-
 }
 
 /**
@@ -246,5 +335,23 @@ class ChaseStrategy {
         ObjectPercept intruder = intruderPercepts.get(0);
         actionQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(Utils.clockAngle(intruder.getPoint().getX(),intruder.getPoint().getY()))));
         actionQueue.add(generateMaxMove(percepts));
+        if (GuardFSM.VERBOSE) {
+            System.out.println(
+                    String.format("Actions for chasing strategy generated, prioQueue length: %d",actionQueue.size()));
+        }
     }
 }
+
+
+//    private void switchState(GuardPercepts percepts){
+//        if(this.phase == Phase.Explore){
+//            this.phase = Phase.Chase;
+//            prioQueue.clear();
+//            chaseStrategy = new ChaseStrategy(prioQueue);
+//            getIntruderVisionPercepts(percepts);
+//            chaseStrategy.handle(currentPercepts,intruderPercepts);
+//        }
+//        else{
+//            this.phase = Phase.Explore;
+//        }
+//    }
