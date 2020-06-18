@@ -307,7 +307,7 @@ public class OccupancyAgent implements Guard {
                     slope_error_new -= 2 * (x2 - x1);
                 }
 
-                //get the value and set to true if there is a wall.
+                //If x and y are in the final vision point and set to true if there is a wall.
                 if(x==objectPercept.getPoint().getX() && y == objectPercept.getPoint().getY()) {
                     //only walls are solid
                     if(objectPercept.getType().isSolid()) {
