@@ -159,11 +159,15 @@ public class OccupancyAgent implements Guard {
 
         } else {
             maxMoveDistance = new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts));
-            //radian sometimes not turning negative
             //radians in this case is Math.Atan(percentageOfSlope/100)
             System.out.println(maxMoveDistance.toString());
-            xPosition+=maxMoveDistance.getValue()*rotateAngleNew.getRadians();
-            yPosition+=maxMoveDistance.getValue()*rotateAngleNew.getRadians();
+            System.out.println(rotateAngleNew.getRadians());
+            xPosition+= maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getDegrees()/100);
+            yPosition+=maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getDegrees()/100);
+            //value has to turn negative
+            //If above does not work (or if I miss understood how slope percentage) works then try:
+            //xPosition += maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getRadians());
+            //yPosition += maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getRadians())
             return new Move(maxMoveDistance);
         }
 
