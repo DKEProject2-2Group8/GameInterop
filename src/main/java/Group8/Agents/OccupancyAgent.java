@@ -165,7 +165,7 @@ public class OccupancyAgent implements Guard {
             xPosition+= maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getDegrees()/100);
             yPosition+=maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getDegrees()/100);
             //value has to turn negative
-            //If above does not work (or if I miss understood how slope percentage) works then try:
+            //If above does not work (or if I miss understood how slope percentage works) then try:
             //xPosition += maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getRadians());
             //yPosition += maxMoveDistance.getValue()*Math.atan(rotateAngleNew.getRadians())
             return new Move(maxMoveDistance);
