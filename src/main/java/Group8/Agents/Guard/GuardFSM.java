@@ -3,7 +3,6 @@ package Group8.Agents.Guard;
 
 import Group9.Game;
 import Interop.Action.GuardAction;
-import Interop.Action.Rotate;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
@@ -12,8 +11,6 @@ import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 import Interop.Percept.Vision.ObjectPercepts;
 import Interop.Utils.Utils;
-import org.w3c.dom.ls.LSOutput;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -49,13 +46,11 @@ public class GuardFSM {
     private boolean startAngle;
     private final int REQ_STEPS = 5;
 
-    private boolean check = false;
     private boolean isCircumNavigating = false;
 
     private enum Phase{
         Explore, Chase,CircumNav
     }
-
 
     public GuardFSM(GuardPercepts percepts) {
         actionQueue = new LinkedList<>();
@@ -72,7 +67,6 @@ public class GuardFSM {
         if (VERBOSE) {
             System.out.println("--------------- New guard move query ---------------\n");
         }
-
 
         currentPercepts = percepts;
 
@@ -103,7 +97,8 @@ public class GuardFSM {
             }
             if (VERBOSE) {
                 System.out.println(
-                        String.format("No longer CircumNavigating (isCircumNavigating: %b), current phase: %s",isCircumNavigating,phase.toString()));
+                        String.format("No longer CircumNavigating (isCircumNavigating: %b), current phase: %s"
+                                ,isCircumNavigating,phase.toString()));
             }
         }
         if(!percepts.wasLastActionExecuted() && this.phase != Phase.Chase){
@@ -133,7 +128,8 @@ public class GuardFSM {
             } else {
                 if (VERBOSE) {
                     System.out.println(
-                            String.format("Either all queues are empty or we are CircumNavigating (isCircumNavigating: %b)",isCircumNavigating));
+                            String.format("Either all queues are empty or we are CircumNavigating (isCircumNavigating: %b)"
+                                    ,isCircumNavigating));
                 }
                 if (this.phase == Phase.CircumNav) {
                     isCircumNavigating = true;
@@ -143,7 +139,6 @@ public class GuardFSM {
                     }
                     // If a collision was predicted and it has not yet been handled, it needs to be handled first here!
                     ObjectPercepts visionPercepts = percepts.getVision().getObjects();
-                    ObjectPercepts colliders = visionPercepts.filter(p -> p.getType() != ObjectPerceptType.EmptySpace);
                     List<ObjectPercept> longEmpty = getLongEmptyList(visionPercepts,percepts);
                     if(longEmpty.isEmpty()){
                         // No rays that have maxlength point to EmptySpace
@@ -166,7 +161,8 @@ public class GuardFSM {
                         prioQueue.add(generateMaxMove(percepts));
                         if (VERBOSE) {
                             System.out.println(
-                                    String.format("Generated actions to go towards the long ray pointing to empty space, prioQueue length: %d",prioQueue.size()));
+                                    String.format("Generated actions to go towards the long ray pointing to empty space, prioQueue length: %d"
+                                            ,prioQueue.size()));
                         }
                         return prioQueue.poll();
                     }
@@ -275,7 +271,6 @@ public class GuardFSM {
         return result;
     }
 
-
     private List<ObjectPercept> getLongEmptyList(ObjectPercepts objectPercepts, GuardPercepts percepts){
         List<ObjectPercept> longEmpty = new ArrayList<>();
         Distance viewRange = percepts.getVision().getFieldOfView().getRange();
@@ -309,9 +304,6 @@ public class GuardFSM {
         return lists;
     }
 
-
-
-
     private void generateSplittingSequence(){
         // Clear the queue since the splitting tactic overrules earlier generated actions
         actionQueue.clear();
@@ -341,17 +333,3 @@ class ChaseStrategy {
         }
     }
 }
-
-
-//    private void switchState(GuardPercepts percepts){
-//        if(this.phase == Phase.Explore){
-//            this.phase = Phase.Chase;
-//            prioQueue.clear();
-//            chaseStrategy = new ChaseStrategy(prioQueue);
-//            getIntruderVisionPercepts(percepts);
-//            chaseStrategy.handle(currentPercepts,intruderPercepts);
-//        }
-//        else{
-//            this.phase = Phase.Explore;
-//        }
-//    }
