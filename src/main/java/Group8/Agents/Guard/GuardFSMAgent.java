@@ -49,8 +49,6 @@ public class GuardFSMAgent implements Guard {
             this.angle = Angle.fromRadians(Utils.clockAngle(0,fov.getRange().getValue()));
             guardCount++;
             init = true;
-
-            System.out.println(String.format("Verbose: %b",VERBOSE));
         }
 
         //next();
