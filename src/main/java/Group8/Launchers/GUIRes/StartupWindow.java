@@ -1,5 +1,6 @@
 package Group8.Launchers.GUIRes;
 
+import Group8.Launchers.GUI;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -9,9 +10,19 @@ import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
+
 public class StartupWindow extends Application {
+
+    GUI gui;
+    String choosenMap = null;
+
+    public void setGUI(GUI gui) {
+        this.gui = gui;
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -37,6 +48,7 @@ public class StartupWindow extends Application {
         sliTicks.setMaxWidth(OBJ_WIDTH);
         sliTicks.setShowTickMarks(true);
         sliTicks.setShowTickLabels(true);
+        sliTicks.setValue(30);
 
         // create an window and a vbox to place the buttons upon
         StackPane root = new StackPane();
@@ -50,8 +62,26 @@ public class StartupWindow extends Application {
         btnExit.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                Stage stage = (Stage) btnExit.getScene().getWindow();
-                stage.close();
+                //Stage stage = (Stage) btnExit.getScene().getWindow();
+                primaryStage.close(); // works?
+            }
+        });
+
+        btnStart.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                gui.startGame(primaryStage, choosenMap,(int)sliTicks.getValue());
+            }
+        });
+
+        btnMap.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Select a Map");
+                File file = fileChooser.showOpenDialog(primaryStage);
+                choosenMap = file.getAbsolutePath();
+                int i = 1;
             }
         });
 

@@ -90,7 +90,7 @@ public class GameScene extends Scene {
 
     private void initButtons(){
         // add and adjust a hbox for the buttons
-        HBox bottomMenuHBox = new HBox(10);
+        HBox bottomMenuHBox = new HBox();
         bottomMenuHBox.setMaxHeight(BOTTOM_MENU);
         bottomMenuHBox.setAlignment(Pos.BASELINE_LEFT);
         bottomMenuHBox.setPadding(new Insets(5,15,5,15));
@@ -104,15 +104,9 @@ public class GameScene extends Scene {
 
         // Buttons
         Button btnPlayPause = new Button("Pause");
-        btnPlayPause.setMinWidth(50);
-        Button btnReload = new Button("Reload Game");
+        btnPlayPause.setMinWidth(width-80);
 
-        Slider sliAdjustSpeed = new Slider();
-        sliAdjustSpeed.setMax(150);
-        sliAdjustSpeed.setMin(1);
-        // Might be added l8er
-
-        bottomMenuHBox.getChildren().addAll(btnPlayPause,btnReload,sliAdjustSpeed);
+        bottomMenuHBox.getChildren().add(btnPlayPause);
 
         btnPlayPause.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -129,14 +123,6 @@ public class GameScene extends Scene {
             }
         });
 
-        // todo finish this
-        btnReload.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                gui.restart();
-            }
-        });
-
     }
 
     public void drawRect(){
@@ -150,20 +136,15 @@ public class GameScene extends Scene {
             //System.out.println(obj.toString());
             if (obj instanceof Sound) {
                 // Draw sound
-
-                final int OVAL_RAD = AGENT_RAD*4;
-
                 gcForeground.setFill(Color.GREEN);
-                Vector2 position = guards.get(0).getPosition().mul(SCALE);
-                //gcForeground.fillOval(position.getX()-AGENT_RAD*1.5,position.getY()-AGENT_RAD*1.5,OVAL_RAD,OVAL_RAD);
-
                 gcForeground.fillOval(obj.getCenter().getX()*SCALE,obj.getCenter().getY()*SCALE,obj.getRadius()*mapScale,obj.getRadius()*mapScale);
-
+                //final int OVAL_RAD = AGENT_RAD*4;
+                //Vector2 position = guards.get(0).getPosition().mul(SCALE);
+                //gcForeground.fillOval(position.getX()-AGENT_RAD*1.5,position.getY()-AGENT_RAD*1.5,OVAL_RAD,OVAL_RAD);
             } else if (obj instanceof Pheromone) {
                 // Draw pheromone
                 gcForeground.setFill(Color.YELLOW);
                 gcForeground.fillOval(obj.getCenter().getX()*SCALE,obj.getCenter().getY()*SCALE,obj.getRadius()*2*mapScale,obj.getRadius()*2*mapScale);
-
             } else {
                 // Draw remaining
                 System.out.println("?");
@@ -171,6 +152,7 @@ public class GameScene extends Scene {
                 gcForeground.fillOval(obj.getCenter().getX()*SCALE,obj.getCenter().getY()*SCALE,obj.getRadius(),obj.getRadius());
             }
         }
+
         for (GuardContainer guard:
                 guards) {
             drawAgent(guard,Presets.GUARD_COL);

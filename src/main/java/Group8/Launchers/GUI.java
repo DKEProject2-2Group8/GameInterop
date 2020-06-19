@@ -15,7 +15,9 @@ import javafx.application.Application;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.List;
 
 
@@ -27,10 +29,9 @@ public class GUI extends Application{
 
     // If we need to pass a specific factory make sure to use -1 for ticks since that will be the fastest
     // DefaultAgentFactory needs to be replaced!
-    private Game game = new Game(Parser.parseFile("./src/main/java/Group9/map/maps/test_2.map"),new DefaultAgentFactory(), false, 15,null);
-    // Unfortunately I think I cannot develop a map changing Button or a tick changing button because we don't have something like the MainController like group 9.
+    private Game game;
 
-    private final GameScene scene = new GameScene(new StackPane(),game.getGameMap(),this);
+    private GameScene scene; // was final
 
     private AnimationTimer timer;
 
@@ -41,8 +42,7 @@ public class GUI extends Application{
     public static void main(String[] args) {
         if(USE_OWN_GUI) {
             launch(args);
-        }
-        else{
+        } else {
             Gui.Gui(args);
         }
     }
@@ -50,8 +50,26 @@ public class GUI extends Application{
     @Override
     public void start(Stage stage) throws Exception {
         System.out.println("OWN GUI");
+        StartupWindow startupWindow = new StartupWindow();
+        startupWindow.setGUI(this);
+        startupWindow.start(stage);
+    }
+
+    public void startGame(Stage stage, String mapPath, int ticks) { // throws Exception maybe
+        // test if params are null and then take standard vals
+        if(mapPath == null) {
+            mapPath = "./src/main/java/Group9/map/maps/test_2.map";
+        }
+        if (ticks == 0) {
+            ticks = 15;
+        }
+        // setup game params
+        game = new Game(Parser.parseFile(mapPath), new DefaultAgentFactory(), false, ticks,null);
+        scene = new GameScene(new StackPane(),game.getGameMap(),this);
+        // prepare window
         stage.setHeight(DEFAULT_HEIGHT);
         stage.setWidth(DEFAULT_WIDTH);
+        stage.setX(stage.getX()-400); // move the game window a little bit more center
         stage.setTitle("G8");
         stage.setScene(scene);
         scene.attachWindow(stage);
@@ -76,10 +94,6 @@ public class GUI extends Application{
             }
         };
         timer.start();
-    }
-
-    public void restart() {
-        timer.start(); //TODO not working
     }
 
     public void playpause(boolean play) {
