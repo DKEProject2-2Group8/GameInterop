@@ -3,6 +3,7 @@ package Group8.Agents;
 import Group8.Agents.Guard.GuardFSMAgent;
 import Group8.Agents.Guard.OccupancyAgent;
 import Group8.Agents.Intruder.IntruderFSMAgent;
+import Group8.Agents.Intruder.RandomIntruderAgent;
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
 import Group9.agent.RandomAgent;
 import Group9.agent.factories.IAgentFactory;
@@ -17,10 +18,10 @@ public class AgentFactoryImpl implements IAgentFactory{
     public static final AlgoI INTRUDER_ALGORITHM = AlgoI.FSM;
 
     public enum AlgoI {
-        SIMPLE_PATH,FSM
+        SIMPLE_PATH,FSM,RANDOM
     }
     public enum AlgoG {
-        AI1,OCCUPANCY_AGENT,FSM
+        RANDOM,OCCUPANCY_AGENT,FSM
 
     }
 
@@ -36,6 +37,9 @@ public class AgentFactoryImpl implements IAgentFactory{
                 case SIMPLE_PATH:
                     intruders.add(new SimplePathfindingIntruder());
                     break;
+                case RANDOM:
+                    intruders.add(new RandomIntruderAgent());
+                    break;
             }
         }
 
@@ -48,7 +52,7 @@ public class AgentFactoryImpl implements IAgentFactory{
 
         for(int i=0; i<number; i++){
             switch(GUARD_ALGORITHM) {
-                case AI1:
+                case RANDOM:
                     // This was stolen from the controller
                     guards.add(new RandomAgent());
                     break;

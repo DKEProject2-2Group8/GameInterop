@@ -3,10 +3,14 @@ package Group8.Agents.Guard;
 
 import Group9.Game;
 import Interop.Action.GuardAction;
+import Interop.Action.Move;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
 import Interop.Percept.GuardPercepts;
+import Interop.Percept.Sound.SoundPercept;
+import Interop.Percept.Sound.SoundPerceptType;
+import Interop.Percept.Sound.SoundPercepts;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 import Interop.Percept.Vision.ObjectPercepts;
@@ -46,6 +50,9 @@ public class GuardFSM {
     private boolean startAngle;
     private final int REQ_STEPS = 5;
 
+    private final int THRESHOLD_CHASE = 10;
+    private int chaseCount;
+
     private boolean isCircumNavigating = false;
 
     private enum Phase{
@@ -60,6 +67,7 @@ public class GuardFSM {
         chaseStrategy = new ChaseStrategy(prioQueue);
         startAngle = false;
         stepsToTarget = 0;
+        chaseCount = 0;
     }
 
     public GuardAction getMoveGuard(GuardPercepts percepts, Angle currentAngle) {
@@ -179,7 +187,39 @@ public class GuardFSM {
                             System.out.println(
                                     String.format("No intruder in vision, transitioning to Exploration"));
                         }
-                        this.phase = Phase.Explore;
+                        if(chaseCount >= THRESHOLD_CHASE){
+                            chaseCount = 0;
+                            this.phase = Phase.Explore;
+                        }
+                        else{
+                            // Generate new action
+
+                            SoundPercepts soundPercepts = percepts.getSounds().filter(s -> s.getType() == SoundPerceptType.Noise);
+                            if(soundPercepts.getAll().size() == 0){
+                                // No sounds
+                                prioQueue.add(generateMaxMove(percepts));
+                                chaseCount++;
+                            } else {
+                                // There are sounds!
+                                SoundPercept closestSoundPercept = null;
+                                for (SoundPercept s :
+                                        soundPercepts.getAll()) {
+                                    if(closestSoundPercept == null){
+                                        closestSoundPercept = s;
+                                    }else{
+                                        Angle angle = Angle.fromRadians(Math.abs(currentAngle.getRadians() - s.getDirection().getRadians()));
+                                        if(angle.getRadians() < closestSoundPercept.getDirection().getRadians()){
+                                            closestSoundPercept = s;
+                                        }
+                                    }
+                                }
+                                prioQueue.addAll(generateRotationSequence(percepts,closestSoundPercept.getDirection()));
+                                chaseCount += prioQueue.size();
+                                return prioQueue.poll();
+                            }
+
+                            return prioQueue.poll();
+                        }
                     } else {
                         // Intruder in vision
                         // Handle chasing
@@ -188,6 +228,8 @@ public class GuardFSM {
                                     String.format("Intruder in vision, chasing"));
                         }
                         chaseStrategy.handle(percepts, intruderPercepts);
+                        chaseCount += prioQueue.size();
+                        return prioQueue.poll();
                     }
 
                 } else if (this.phase == Phase.Explore) {
@@ -271,6 +313,15 @@ public class GuardFSM {
         return result;
     }
 
+    private ArrayList<SoundPercept> soundPerceptsToArrayList(SoundPercepts soundPercepts){
+        ArrayList<SoundPercept> sounds = new ArrayList<>();
+        for (SoundPercept s :
+                soundPercepts.getAll()) {
+            sounds.add(s);
+        }
+        return sounds;
+    }
+
     private List<ObjectPercept> getLongEmptyList(ObjectPercepts objectPercepts, GuardPercepts percepts){
         List<ObjectPercept> longEmpty = new ArrayList<>();
         Distance viewRange = percepts.getVision().getFieldOfView().getRange();
@@ -326,7 +377,8 @@ class ChaseStrategy {
         // Implement a strategy to chase an intruder in sight
         ObjectPercept intruder = intruderPercepts.get(0);
         actionQueue.addAll(generateRotationSequence(percepts,Angle.fromRadians(Utils.clockAngle(intruder.getPoint().getX(),intruder.getPoint().getY()))));
-        actionQueue.add(generateMaxMove(percepts));
+        Distance d = new Distance(new Point(0,0),intruder.getPoint());
+        actionQueue.add(new Move(d));
         if (GuardFSM.VERBOSE) {
             System.out.println(
                     String.format("Actions for chasing strategy generated, prioQueue length: %d",actionQueue.size()));
