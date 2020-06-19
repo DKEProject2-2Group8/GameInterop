@@ -7,7 +7,7 @@ import Group9.map.parser.Parser;
 
 public class ExperimentLauncher {
 
-    private static final int RUNS = 10;
+    private static final int RUNS = 100;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
@@ -29,6 +29,7 @@ public class ExperimentLauncher {
                     guardWins++;
                 }
             }
+            System.out.println(String.format("Progress: %f%%, current iteration: %d",((i+1d)/RUNS) * 100,i));
         }
 
         System.out.println(String.format("Intruders won: #%d games and guards won: #%d games",intruderWins,guardWins));
