@@ -379,15 +379,24 @@ public class OccupancyAgent implements Guard {
             }
             // NE case
             else if (x2 < x1 && y2 < y1) {
-                for (int i = y1 - explorationSize; i < y1; i++) {
-                    for (int j = x1 - explorationSize; j < x1; j++) {
-                        if (!occupancyGrid.occupancyGrid[j][i]) {
+                for(int i = x1-explorationSize; i < x1; i++) {
+                    for(int j = y1-explorationSize; j < y1; j++) {
+                        if(!occupancyGrid.occupancyGrid[j][i]){
                             continue;
                         } else {
                             countTrue++;
                         }
                     }
                 }
+//                for (int i = y1 - explorationSize; i < y1; i++) {
+//                    for (int j = x1 - explorationSize; j < x1; j++) {
+//                        if (!occupancyGrid.occupancyGrid[j][i]) {
+//                            continue;
+//                        } else {
+//                            countTrue++;
+//                        }
+//                    }
+//                }
             }
             //Agent is facing the endpoint
             else {
