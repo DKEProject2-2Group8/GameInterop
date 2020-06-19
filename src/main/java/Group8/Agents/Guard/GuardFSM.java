@@ -29,7 +29,7 @@ import static Group8.Agents.Guard.GuardUtils.*;
  */
 public class GuardFSM {
 
-    public static final boolean VERBOSE = true;
+    public static final boolean VERBOSE = false;
 
     private double COLLISION_ROT = Math.PI;
 
