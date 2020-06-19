@@ -2,6 +2,7 @@ package Group8.Launchers;
 
 
 import Group8.Launchers.GUIRes.GameScene;
+import Group8.Launchers.GUIRes.StartupWindow;
 import Group9.Game;
 import Group9.agent.container.GuardContainer;
 import Group9.agent.container.IntruderContainer;
@@ -14,7 +15,6 @@ import javafx.application.Application;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,11 +23,11 @@ public class GUI extends Application{
 
     public static final boolean USE_OWN_GUI = true;
 
-    private final int DEFAULT_WIDTH = 800, DEFAULT_HEIGHT = 600, TICKS = 15;
+    private final int DEFAULT_WIDTH = 800, DEFAULT_HEIGHT = 600;
 
     // If we need to pass a specific factory make sure to use -1 for ticks since that will be the fastest
     // DefaultAgentFactory needs to be replaced!
-    private Game game = new Game(Parser.parseFile("./src/main/java/Group9/map/maps/test_2.map"),new DefaultAgentFactory(), false, TICKS,null);
+    private Game game = new Game(Parser.parseFile("./src/main/java/Group9/map/maps/test_2.map"),new DefaultAgentFactory(), false, 15,null);
     // Unfortunately I think I cannot develop a map changing Button or a tick changing button because we don't have something like the MainController like group 9.
 
     private final GameScene scene = new GameScene(new StackPane(),game.getGameMap(),this);
