@@ -62,7 +62,7 @@ public class GuardFSM {
         stepsToTarget = 0;
     }
 
-    public GuardAction getMoveGuard(GuardPercepts percepts) {
+    public GuardAction getMoveGuard(GuardPercepts percepts, Angle currentAngle) {
 
         if (VERBOSE) {
             System.out.println("--------------- New guard move query ---------------\n");

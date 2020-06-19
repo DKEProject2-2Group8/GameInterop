@@ -52,7 +52,7 @@ public class GuardFSMAgent implements Guard {
         }
 
         //next();
-        GuardAction action = guardFSM.getMoveGuard(percepts);
+        GuardAction action = guardFSM.getMoveGuard(percepts,angle);
         if(action == null){
             if (VERBOSE) {
                 System.out.println(
