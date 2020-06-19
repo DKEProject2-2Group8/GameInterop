@@ -16,6 +16,7 @@ import Interop.Percept.Smell.SmellPerceptType;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPercepts;
 
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -379,15 +380,26 @@ public class OccupancyAgent implements Guard {
             }
             // NE case
             else if (x2 < x1 && y2 < y1) {
+                System.out.println("exploration size: " + explorationSize);
+                System.out.println("(x2,y2)=" + x2 + ", " + y2);
+                System.out.println("(x1,y1)=" + x1 + ", " + y1);
+                //might need to flip the index if as it might be counting from the right as the initial position.
+//                for (int left = 0, right = data.length - 1; left < right; left++, right--) {
+//                    // swap the values at the left and right indices
+//                    int temp = data[left];
+//                    data[left]  = data[right];
+//                    data[right] = temp;
+//                }
                 for(int i = x1-explorationSize; i < x1; i++) {
                     for(int j = y1-explorationSize; j < y1; j++) {
-                        if(!occupancyGrid.occupancyGrid[j][i]){
+                        if(!occupancyGrid.occupancyGrid[i][j]){
                             continue;
                         } else {
                             countTrue++;
                         }
                     }
                 }
+                //flipped the x1 and y1 terms.
 //                for (int i = y1 - explorationSize; i < y1; i++) {
 //                    for (int j = x1 - explorationSize; j < x1; j++) {
 //                        if (!occupancyGrid.occupancyGrid[j][i]) {
