@@ -1,9 +1,8 @@
 package Group8.Agents;
 
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
-import Group8.PathFinding.FFNN;
+import Group8.Agents.Intruder.FFNN;
 import Group9.agent.RandomAgent;
-import Group9.agent.RandomIntruderAgent;
 import Group9.agent.factories.IAgentFactory;
 import Interop.Agent.Guard;
 import Interop.Agent.Intruder;

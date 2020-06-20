@@ -1,4 +1,4 @@
-package Group8.PathFinding;
+package Group8.FFNN;
 import java.lang.Math;
 
 public class Perceptron {

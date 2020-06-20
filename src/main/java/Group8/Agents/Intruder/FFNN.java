@@ -1,5 +1,6 @@
-package Group8.PathFinding;
+package Group8.Agents.Intruder;
 
+import Group8.FFNN.VisionPredictor;
 import Interop.Action.IntruderAction;
 import Interop.Agent.Intruder;
 import Interop.Percept.IntruderPercepts;

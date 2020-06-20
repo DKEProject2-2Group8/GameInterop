@@ -1,9 +1,9 @@
-package Group8.PathFinding;
+package Group8.FFNN;
 
+import Group8.FFNN.Perceptron;
 import Interop.Action.IntruderAction;
 import Interop.Action.Move;
 import Interop.Action.Rotate;
-import Interop.Agent.Intruder;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
