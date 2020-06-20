@@ -1,6 +1,7 @@
 package Group8.Agents;
 
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
+import Group8.PathFinding.FFNN;
 import Group9.agent.RandomAgent;
 import Group9.agent.RandomIntruderAgent;
 import Group9.agent.factories.IAgentFactory;
@@ -12,10 +13,10 @@ import java.util.List;
 
 public class AgentFactoryImpl implements IAgentFactory{
     public static final AlgoG GUARD_ALGORITHM= AlgoG.AI1;
-    public static final AlgoI INTRUDER_ALGORITHM = AlgoI.SIMPLE_PATH;
+    public static final AlgoI INTRUDER_ALGORITHM = AlgoI.FFNN;
 
     public enum AlgoI {
-        AI1,SIMPLE_PATH
+        AI1,SIMPLE_PATH,FFNN
     }
     public enum AlgoG {
         AI1,AI2
@@ -34,6 +35,8 @@ public class AgentFactoryImpl implements IAgentFactory{
                 case SIMPLE_PATH:
                     intruders.add(new SimplePathfindingIntruder());
                     break;
+                case FFNN:
+                    intruders.add(new FFNN());
             }
         }
 

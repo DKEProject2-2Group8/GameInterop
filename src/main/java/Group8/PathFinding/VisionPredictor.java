@@ -1,23 +1,33 @@
 package Group8.PathFinding;
 
+import Interop.Action.IntruderAction;
+import Interop.Action.Move;
+import Interop.Action.Rotate;
 import Interop.Agent.Intruder;
+import Interop.Geometry.Angle;
+import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
 import Interop.Percept.IntruderPercepts;
 import Interop.Percept.Vision.ObjectPercept;
+import Interop.Percept.Vision.ObjectPerceptType;
 
 import java.util.*;
 
 public class VisionPredictor {
 
+    IntruderPercepts percepts;
     Set<ObjectPercept> perception;
+    private final Angle MAX_ROTATION;
 
     public VisionPredictor(IntruderPercepts percepts) {
 
+        percepts = percepts;
         perception = percepts.getVision().getObjects().getAll();
+        MAX_ROTATION = percepts.getScenarioIntruderPercepts().getScenarioPercepts().getMaxRotationAngle();
 
     }
 
-    public int MakeFFNN(){
+    public IntruderAction MakeFFNN(){
         Iterator<ObjectPercept> iterator = perception.iterator();
 
 
@@ -52,21 +62,24 @@ public class VisionPredictor {
          * Bag 5 X near 0 : small and large dist
          */
         double[] bags = new double[5];
+        for(int i=0; i<bags.length; i++){
+            bags[i] = 0;
+        }
 
         for(int i=0; i<rays.length; i++){
-            if(rays[i].getPoint().getX() < -0.2){
+            if(rays[i].getPoint().getX() < -0.2 && rays[i].getType() == ObjectPerceptType.Wall){
                 if(testDistance(rays[i].getPoint(), false) < 3){
                     bags[0] += 1;
                 } else {
                     bags[1] += 1;
                 }
-            } else if(rays[i].getPoint().getX() > 0.2){
+            } else if(rays[i].getPoint().getX() > 0.2  && rays[i].getType() == ObjectPerceptType.Wall){
                 if(testDistance(rays[i].getPoint(), false) < 3){
                     bags[2] += 1;
                 } else {
                     bags[3] += 1;
                 }
-            } else {
+            } else if(rays[i].getType() == ObjectPerceptType.Wall){
                 bags[4] += 1;
             }
         }
@@ -77,21 +90,62 @@ public class VisionPredictor {
                 max = bags[i];
             }
         }
-        for(int i=0; i<bags.length; i++){
-            bags[i] = bags[i] / max;
+        //Scaling to 1
+        if(max != 0) {
+            for (int i = 0; i < bags.length; i++) {
+                bags[i] = bags[i] / max;
+            }
         }
 
         printBags(bags);
 
-        int choice = FFNN(bags);
+        int choice = -1;
+
+
+        for(int i=bags.length-1; i>=0; i--){
+            if(bags[i]==0){
+                System.out.println("Bag is empty: " + i);
+                if(i==4){
+                    choice = 1;
+                } else if(i==3 || i==2){
+                    choice = 2;
+                } else if(i==1 || i==0){
+                    choice = 0;
+                }
+                break;
+            }
+        }
+        if(choice<0) {
+            choice = FFNN(bags);
+        }
         /**
          * If choice is 0 --> left
          * If choice is 1 --> straight
          * If choice is 2 --> right
          */
 
+        dispChoice(choice);
+
         //System.out.println(new Perceptron().Activation(1));   //Tests the perceptron
-        return choice;
+        //return choice;
+
+        IntruderAction action;
+
+        if(Math.abs(percepts.getTargetDirection().getRadians()) <= 0.001){
+            System.out.println("Works");
+        }
+
+
+        if(choice == 1 || Math.abs(percepts.getTargetDirection().getRadians()) <= 0.001){
+            return new Move(new Distance(0.25));
+        } else if(choice==0){
+            return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));
+        } else if(choice==2){
+            return new Rotate(Angle.fromRadians(-MAX_ROTATION.getRadians()));
+        } else {
+            return new Rotate(Angle.fromRadians(percepts.getTargetDirection().getRadians()+0.0001));
+        }
+
     }
 
     public static int FFNN(double[] bags){
@@ -105,7 +159,7 @@ public class VisionPredictor {
         double[] summaOutput = new double[3];
 
         double[][] weights1 = {
-                {0.81, 0.11, 0.8},
+                {0.81, 0.11, 0.08},
                 {0.79, 0.7, 0.14},
                 {0.10, 0.1, 0.89},
                 {0.8, 0.25, 0.67},
@@ -204,6 +258,20 @@ public class VisionPredictor {
         System.out.println("Display Bags");
         for(int i=0; i<bags.length; i++){
             System.out.println("Bag " + i + " has " + bags[i] + " elements.");
+        }
+
+    }
+
+    public static void dispChoice(int choice){
+
+        if(choice==0){
+            System.out.println("Agent goes left");
+        } else if(choice == 1){
+            System.out.println("Agent goes straight");
+        } else if(choice == 2){
+            System.out.println("Agent goes right");
+        } else {
+            System.out.println("Agent has a bug");
         }
 
     }
