@@ -41,6 +41,8 @@ public class VisionPredictor {
             rays[i] = iterator.next();
         }
 
+
+
         for(int i=0; i<rays.length; i++){
             System.out.println(i + ": " + rays[i]);
         }
@@ -52,7 +54,7 @@ public class VisionPredictor {
             System.out.print(i + ": " + rays[i]);
             testDistance(rays[i].getPoint(), true);
         }
-
+        new AugmentVision(rays);
         //Future input layer
         /**
          * Bag 1 -X : small Dist
@@ -131,9 +133,10 @@ public class VisionPredictor {
 
         IntruderAction action;
 
-        if(Math.abs(percepts.getTargetDirection().getRadians()) <= 0.001){
+        System.out.println(Angle.fromRadians(percepts.getTargetDirection().getRadians()+0.0001));
+        /*if(Math.abs(percepts.getTargetDirection().getRadians()) <= 0.001){
             System.out.println("Works");
-        }
+        }*/
 
 
         if(choice == 1 || Math.abs(percepts.getTargetDirection().getRadians()) <= 0.001){
