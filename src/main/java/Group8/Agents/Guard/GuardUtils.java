@@ -50,7 +50,7 @@ public class GuardUtils {
                     actionList.add(new Rotate(Angle.fromRadians(-MAX_ROTATION.getRadians())));
                     radiansLeft += MAX_ROTATION.getRadians();
                 } else {
-                    actionList.add(new Rotate(Angle.fromRadians(-radiansLeft + EPS)));
+                    actionList.add(new Rotate(Angle.fromRadians(radiansLeft + EPS)));
                     radiansLeft = 0;
                 }
             }

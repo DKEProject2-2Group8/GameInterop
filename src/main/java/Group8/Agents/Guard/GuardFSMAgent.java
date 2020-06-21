@@ -51,12 +51,13 @@ public class GuardFSMAgent implements Guard {
             init = true;
         }
 
+
         //next();
         GuardAction action = guardFSM.getMoveGuard(percepts,angle);
         if(action == null){
             if (VERBOSE) {
                 System.out.println(
-                        String.format("returning NoAction since FSM produces null\n"));
+                        "returning NoAction since FSM produces null\n");
             }
             return new NoAction();
         }
@@ -66,10 +67,6 @@ public class GuardFSMAgent implements Guard {
                 double newAngle = angle.getRadians() + r.getAngle().getRadians();
                 this.angle = Angle.fromRadians(newAngle % (Math.PI*2));
             }
-        }
-        if (VERBOSE) {
-            System.out.println(
-                    String.format("return action produced by FSM\n"));
         }
         return action;
     }

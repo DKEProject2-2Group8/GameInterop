@@ -60,7 +60,7 @@ import java.util.function.Function;
 public class MainScene extends Scene {
     class Settings{
         public boolean showText=false;
-        public double agentScale = 5;
+        public double agentScale = 1;
         public void toggleText(){
             showText = !showText;
         }

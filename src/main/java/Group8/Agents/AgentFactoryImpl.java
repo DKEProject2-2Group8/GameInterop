@@ -2,8 +2,9 @@ package Group8.Agents;
 
 import Group8.Agents.Guard.GuardFSMAgent;
 import Group8.Agents.Guard.OccupancyAgent;
+import Group8.Agents.Guard.RotationTestGuard;
 import Group8.Agents.Intruder.IntruderFSMAgent;
-import Group8.Agents.Intruder.RandomIntruderAgent;
+import Group8.Agents.Intruder.RandomIntruder;
 import Group8.Agents.Intruder.SimplePathfindingIntruder;
 import Group9.agent.RandomAgent;
 import Group9.agent.factories.IAgentFactory;
@@ -14,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentFactoryImpl implements IAgentFactory{
-    public static final AlgoG GUARD_ALGORITHM = AlgoG.RANDOM;
+    public static final AlgoG GUARD_ALGORITHM = AlgoG.FSM;
     public static final AlgoI INTRUDER_ALGORITHM = AlgoI.RANDOM;
 
     public enum AlgoI {
         SIMPLE_PATH,FSM,RANDOM
     }
     public enum AlgoG {
-        RANDOM,OCCUPANCY_AGENT,FSM
+        RANDOM,OCCUPANCY_AGENT,FSM,TEST
 
     }
 
@@ -38,7 +39,7 @@ public class AgentFactoryImpl implements IAgentFactory{
                     intruders.add(new SimplePathfindingIntruder());
                     break;
                 case RANDOM:
-                    intruders.add(new RandomIntruderAgent());
+                    intruders.add(new RandomIntruder());
                     break;
             }
         }
@@ -61,6 +62,9 @@ public class AgentFactoryImpl implements IAgentFactory{
                     break;
                 case FSM:
                     guards.add(new GuardFSMAgent());
+                    break;
+                case TEST:
+                    guards.add(new RotationTestGuard());
                     break;
             }
         }

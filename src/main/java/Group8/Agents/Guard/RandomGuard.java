@@ -1,4 +1,4 @@
-package Group8.Agents;
+package Group8.Agents.Guard;
 
 import Group9.Game;
 import Interop.Action.DropPheromone;
@@ -12,9 +12,9 @@ import Interop.Percept.GuardPercepts;
 import Interop.Percept.Scenario.SlowDownModifiers;
 import Interop.Percept.Smell.SmellPerceptType;
 
-public class RandomAgent implements Guard {
+public class RandomGuard implements Guard {
 
-    public RandomAgent() {}
+    public RandomGuard() {}
 
     @Override
     public GuardAction getAction(GuardPercepts percepts) {
@@ -29,27 +29,10 @@ public class RandomAgent implements Guard {
         }
         else
         {
-            return new Move(new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts)));
+            return GuardUtils.generateMaxMove(percepts);
         }
     }
 
-    private double getSpeedModifier(GuardPercepts guardPercepts)
-    {
-        SlowDownModifiers slowDownModifiers =  guardPercepts.getScenarioGuardPercepts().getScenarioPercepts().getSlowDownModifiers();
-        if(guardPercepts.getAreaPercepts().isInWindow())
-        {
-            return slowDownModifiers.getInWindow();
-        }
-        else if(guardPercepts.getAreaPercepts().isInSentryTower())
-        {
-            return slowDownModifiers.getInSentryTower();
-        }
-        else if(guardPercepts.getAreaPercepts().isInDoor())
-        {
-            return slowDownModifiers.getInDoor();
-        }
 
-        return 1;
-    }
 
 }
