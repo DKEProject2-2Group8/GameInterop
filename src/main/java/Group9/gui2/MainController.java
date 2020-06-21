@@ -77,6 +77,7 @@ public class MainController implements Runnable {
         if(animator!=null){
             animator.stop();
         }
+        System.out.println(String.format("The winner is: %s",game.getWinner()));
     }
     public void updateGameSpeed(int gameSpeed){
         game.getTicks().set(gameSpeed);

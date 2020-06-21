@@ -4,7 +4,7 @@ package Group8.Agents.Guard;
 import Group9.Game;
 import Interop.Action.GuardAction;
 import Interop.Action.Move;
-import Interop.Agent.Guard;
+import Interop.Action.NoAction;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
@@ -17,10 +17,8 @@ import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 import Interop.Percept.Vision.ObjectPercepts;
 import Interop.Utils.Utils;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 import static Group8.Agents.Guard.GuardUtils.*;
 
@@ -31,7 +29,7 @@ import static Group8.Agents.Guard.GuardUtils.*;
  */
 public class GuardFSM {
 
-    public static final boolean VERBOSE = true;
+    public static final boolean VERBOSE = false;
 
     private double COLLISION_ROT = Math.PI;
 
@@ -284,6 +282,15 @@ public class GuardFSM {
                         System.out.println(
                                 "Deploying exploration strategy");
                     }
+
+
+                    // Explore sound-percepts
+                    SoundPercepts noises = percepts.getSounds().filter(p -> p.getType() == SoundPerceptType.Noise);
+                    ArrayList<SoundPercept> soundPercepts = new ArrayList<>(noises.getAll());
+                    if(soundPercepts.size() > 0){
+                        return exploreSoundPercepts(percepts,actionQueue,soundPercepts);
+                    }
+
                     // Getting here means there is no intruder in vision
                     // This is where the exploring method is defined
                     double odds = Game._RANDOM.nextDouble();
@@ -306,6 +313,20 @@ public class GuardFSM {
                 return generateMaxMove(percepts);
             }
         }
+    }
+
+    private GuardAction exploreSoundPercepts(GuardPercepts percepts, LinkedList<GuardAction> actionQueue, ArrayList<SoundPercept> soundPercepts) {
+        if(soundPercepts.size() == 1){
+            actionQueue.addAll(generateRotationSequence(percepts,correctDirection(soundPercepts.get(0).getDirection())));
+            actionQueue.add(generateMaxMove(percepts));
+            //System.out.println("Going after sound!");
+            return actionQueue.poll();
+        }
+
+        //System.out.println("More than one soundpercept....");
+
+
+        return new NoAction();
     }
 
     private boolean isIntruderInVision(GuardPercepts percepts) {
@@ -421,23 +442,24 @@ class ChaseStrategy {
 
     private LinkedList<GuardAction> actionQueue;
 
+    private final double EPS = 0.3;
+
     public ChaseStrategy(LinkedList<GuardAction> actionQueue) {
         this.actionQueue = actionQueue;
     }
 
     public void handle(GuardPercepts percepts, ArrayList<ObjectPercept> intruderPercepts){
+
+        double delta = percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * EPS;
+
         // Implement a strategy to chase an intruder in sight
         FieldOfView fov = percepts.getVision().getFieldOfView();
         actionQueue.clear();
         ObjectPercept intruder = intruderPercepts.get(0);
         Angle neededRotation = Angle.fromRadians(Utils.clockAngle(intruder.getPoint().getX(),intruder.getPoint().getY()));
         //System.out.printf("NeededRotation: %f degrees\n",neededRotation.getDegrees());
-        Angle rot;
-        if(neededRotation.getRadians() >= Math.PI){
-            rot = Angle.fromRadians(-((Math.PI * 2) - neededRotation.getRadians()));
-        } else {
-            rot = neededRotation;
-        }
+        Angle rot = correctDirection(neededRotation);
+
 //        if(Math.abs(rot.getRadians()) >= fov.getViewAngle().getRadians()/6) {
 //            if(GuardFSM.VERBOSE){
 //                System.out.printf("Rotating: %b",true);
@@ -449,13 +471,22 @@ class ChaseStrategy {
 //        }
         if(new Distance(new Point(0,0),intruder.getPoint()).getValue() >=
                 percepts.getScenarioGuardPercepts().getScenarioPercepts().getCaptureDistance().getValue()) {
-            actionQueue.addAll(generateRotationSequence(percepts, rot));
+            if(rot.getRadians() < fov.getViewAngle().getRadians() / 8) {
+                actionQueue.addAll(generateRotationSequence(percepts, rot));
+            }
         }
         Distance d = new Distance(new Point(0,0),intruder.getPoint());
         if(d.getValue() > percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue()){
             actionQueue.add(generateMaxMove(percepts));
         } else {
-            actionQueue.add(new Move(d));
+            double dst = d.getValue() -
+                    percepts.getScenarioGuardPercepts().getScenarioPercepts().getCaptureDistance().getValue();
+            if(dst > 0){
+                actionQueue.add(new Move(new Distance(dst)));
+            }
+            else{
+                actionQueue.add(new Move(d));
+            }
         }
         if (GuardFSM.VERBOSE) {
             System.out.println(

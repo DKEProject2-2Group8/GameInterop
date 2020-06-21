@@ -7,7 +7,7 @@ import Group9.map.parser.Parser;
 
 public class ExperimentLauncher {
 
-    private static final int RUNS = 10;
+    private static final int RUNS = 100;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;

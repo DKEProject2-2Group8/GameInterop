@@ -58,6 +58,16 @@ public class GuardUtils {
         return actionList;
     }
 
+    public static final Angle correctDirection(Angle angle){
+        Angle rot;
+        if(angle.getRadians() >= Math.PI){
+            rot = Angle.fromRadians(-((Math.PI * 2) - angle.getRadians()));
+        } else {
+            rot = angle;
+        }
+        return rot;
+    }
+
     public static final boolean predictCollision(GuardPercepts percepts){
         if(!init){
             init = true;
