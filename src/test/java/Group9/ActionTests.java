@@ -439,7 +439,7 @@ public class ActionTests extends SimpleUnitTest {
         }
 
         @Override
-        public IntruderAction getAction(IntruderPercepts percepts) {
+        public IntruderAction getAction(IntruderPercepts percepts, int finalCount) {
             this.percepts = percepts;
             return (IntruderAction) super.getAction();
         }

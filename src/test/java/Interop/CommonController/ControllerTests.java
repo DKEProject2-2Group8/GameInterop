@@ -1,7 +1,6 @@
 package Interop.CommonController;
 
 import Group9.Game;
-import Group9.agent.factories.DefaultAgentFactory;
 import Group9.agent.factories.IAgentFactory;
 import Group9.map.parser.Parser;
 import Interop.Action.GuardAction;
@@ -10,8 +9,6 @@ import Interop.Action.NoAction;
 import Interop.Action.Rotate;
 import Interop.Agent.Guard;
 import Interop.Agent.Intruder;
-import Interop.Geometry.Angle;
-import Interop.Geometry.Direction;
 import Interop.Percept.GuardPercepts;
 import Interop.Percept.IntruderPercepts;
 import Interop.Percept.Vision.ObjectPerceptType;
@@ -35,7 +32,7 @@ public class ControllerTests extends SimpleUnitTest {
                         List<Intruder> list = new ArrayList<>();
                         for (int i = 0; i < amount; i++) {
                             list.add(new Intruder() {
-                                public IntruderAction getAction(IntruderPercepts percepts) {
+                                public IntruderAction getAction(IntruderPercepts percepts, int finalCount) {
 
                                     int countDoorInFieldOfView = percepts
                                         .getVision()
@@ -130,7 +127,7 @@ public class ControllerTests extends SimpleUnitTest {
                     public List<Intruder> createIntruders(int amount) {
                         List<Intruder> list = new ArrayList<>();
                         for (int i = 0; i < amount; i++) {
-                            list.add((intruderPercepts) -> {
+                            list.add((intruderPercepts, finalCount) -> {
                                 return new Rotate(intruderPercepts.getTargetDirection());
                             });
                         }

@@ -7,7 +7,6 @@ import Interop.Action.Rotate;
 import Interop.Agent.Intruder;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
-import Interop.Percept.GuardPercepts;
 import Interop.Percept.IntruderPercepts;
 import Interop.Percept.Scenario.SlowDownModifiers;
 
@@ -33,7 +32,7 @@ public class RandomIntruderAgent implements Intruder {
     }
 
     @Override
-    public IntruderAction getAction(IntruderPercepts percepts) {
+    public IntruderAction getAction(IntruderPercepts percepts, int finalCount) {
         if(!percepts.wasLastActionExecuted())
         {
             return new Rotate(Angle.fromRadians(percepts.getScenarioIntruderPercepts().getScenarioPercepts().getMaxRotationAngle().getRadians() * Game._RANDOM.nextDouble()));

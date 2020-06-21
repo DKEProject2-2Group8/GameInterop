@@ -3,6 +3,8 @@ package Interop.Agent;
 import Interop.Action.*;
 import Interop.Percept.*;
 
+import java.io.FileNotFoundException;
+
 /**
  * The interface of an intruder.
  *
@@ -15,8 +17,9 @@ public interface Intruder {
      * In order to decide an action the implementing agent receives percepts.
      *
      * @param percepts The precepts represent the world as perceived by that agent.
+     * @param finalCount
      * @return The action that the agent decides on taking.
      */
-    IntruderAction getAction(IntruderPercepts percepts);
+    IntruderAction getAction(IntruderPercepts percepts, int finalCount) throws FileNotFoundException;
 
 }

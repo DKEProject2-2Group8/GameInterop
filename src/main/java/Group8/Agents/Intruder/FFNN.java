@@ -1,10 +1,12 @@
 package Group8.Agents.Intruder;
 
 import Group8.FFNN.VisionPredictor;
-import Group8.PathFinding.SimplePathfinding;
 import Interop.Action.IntruderAction;
 import Interop.Agent.Intruder;
 import Interop.Percept.IntruderPercepts;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class FFNN implements Intruder {
 
@@ -16,10 +18,20 @@ public class FFNN implements Intruder {
     }*/
 
     @Override
-    public IntruderAction getAction(IntruderPercepts percepts){
+    public IntruderAction getAction(IntruderPercepts percepts, int finalCount) throws FileNotFoundException {
         if(visionPredictor == null){
             visionPredictor = new VisionPredictor(percepts);
         }
-        return visionPredictor.MakeFFNN();
+        return visionPredictor.MakeFFNN(1);
     }
+
+   /* public IntruderAction getAction(IntruderPercepts percepts, int i) throws IOException {
+        if(visionPredictor == null){
+            visionPredictor = new VisionPredictor(percepts, i);
+        }
+        return visionPredictor.MakeFFNN(i);
+    }*/
+
+   // public void win()
+
 }

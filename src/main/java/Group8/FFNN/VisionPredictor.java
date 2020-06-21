@@ -7,10 +7,13 @@ import Interop.Action.Rotate;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
+import Interop.Percept.AreaPercepts;
 import Interop.Percept.IntruderPercepts;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 
+import java.awt.geom.Area;
+import java.io.*;
 import java.util.*;
 
 public class VisionPredictor {
@@ -18,18 +21,37 @@ public class VisionPredictor {
     IntruderPercepts percepts;
     Set<ObjectPercept> perception;
     private final Angle MAX_ROTATION;
+    private int genesIndex;
+
 
     public VisionPredictor(IntruderPercepts percepts) {
 
         percepts = percepts;
         perception = percepts.getVision().getObjects().getAll();
         MAX_ROTATION = percepts.getScenarioIntruderPercepts().getScenarioPercepts().getMaxRotationAngle();
+        genesIndex = 1;
 
     }
 
-    public IntruderAction MakeFFNN(){
+    public VisionPredictor(IntruderPercepts percepts, int index) throws IOException {
+
+        percepts = percepts;
+        perception = percepts.getVision().getObjects().getAll();
+        MAX_ROTATION = percepts.getScenarioIntruderPercepts().getScenarioPercepts().getMaxRotationAngle();
+        genesIndex = index;
+
+        if(genesIndex<0){
+            System.out.println("_____________________________WRITE_GENES_INDEX_______________________________");
+            writeGenes(genesIndex);
+        }
+        genesIndex = Math.abs(genesIndex);
+
+    }
+
+    public IntruderAction MakeFFNN(int ind) throws FileNotFoundException {
         Iterator<ObjectPercept> iterator = perception.iterator();
 
+        this.genesIndex = Math.abs(ind);
 
         /*while(iterator.hasNext()){
             System.out.println(i + " " +iterator.next().getPoint());
@@ -117,8 +139,8 @@ public class VisionPredictor {
                 break;
             }
         }
-        if(choice<0) {
-            choice = FFNN(bags);
+        if(choice<0 || true) {
+            choice = FFNN(bags, genesIndex);
         }
         /**
          * If choice is 0 --> left
@@ -151,7 +173,7 @@ public class VisionPredictor {
 
     }
 
-    public static int FFNN(double[] bags){
+    public static int FFNN(double[] bags, int genesIndex) throws FileNotFoundException {
 
 
         //Perceptron[] hiddenLayer = new Perceptron[3];
@@ -161,13 +183,17 @@ public class VisionPredictor {
         double[] sumOutput = new double[3];
         double[] summaOutput = new double[3];
 
-        double[][] weights1 = {
+        /*double[][] weights1 = {
                 {0.81, 0.11, 0.08},
                 {0.79, 0.7, 0.14},
                 {0.10, 0.1, 0.89},
                 {0.8, 0.25, 0.67},
                 {0.32, 0.57, 0.11}
-        };
+        };*/
+        String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + genesIndex +  ".txt";
+        double[][] weights1 = readGenes(5, 3, path);
+        dispGenes(weights1);
+        weights1 = mutate(weights1);
 
         double[][] weights2 = {
                 {0.7, 0.8, 0.85},
@@ -224,6 +250,24 @@ public class VisionPredictor {
 
     }
 
+    public static void writeGenes(int index) throws IOException {
+        int genesIndex = Math.abs(index);
+        String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + genesIndex +  ".txt";
+
+        double[][] genes = readGenes(5, 3, path);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+
+        String newGenes = "";
+        for(int i=0; i<5;i++){
+            for(int j=0; j<3; j++){
+                newGenes += " " + genes[i][j];
+            }
+        }
+
+        writer.write(newGenes);//save the string representation of the board
+        writer.close();
+    }
+
     public static ObjectPercept[] bubbleSort(ObjectPercept[] arr) {
         int n = arr.length;
         ObjectPercept temp;
@@ -253,6 +297,59 @@ public class VisionPredictor {
         }
         return dist;
 
+    }
+
+    public static void dispGenes(double[][] weights){
+
+        for(int i=0; i< 5; i++){
+            for(int j=0; j< 3; j++){
+                System.out.print(weights[i][j] + ", ");
+            }
+            System.out.println();
+        }
+
+    }
+
+    public static double[][] readGenes(int dimX, int dimY, String path) throws FileNotFoundException {
+        double[][] a = new double[dimX][dimY];
+
+        Scanner input = new Scanner (new File(path));
+        for(int i = 0; i < dimX; ++i)
+        {
+            for(int j = 0; j < dimY; ++j)
+            {
+                if(input.hasNextDouble())
+                {
+                    a[i][j] = input.nextDouble();
+                }
+            }
+        }
+        return a;
+    }
+
+    public static double[][] mutate(double[][] weights){
+        Random rand = new Random();
+        double mutationRate = 0.05;
+        for(int i=0; i<5; i++){
+            for(int j=0; j<3; j++){
+                int hazard = rand.nextInt(1);
+                if (hazard < 0.34) {
+                    weights[i][j] += mutationRate;
+                } else if(hazard >= 0.34 && hazard <0.7){
+                    weights[i][j] -= mutationRate;
+                } else{
+                    //Nothing
+                }
+                if(weights[i][j] > 1){
+                    weights[i][j] -= mutationRate;
+                } else if(weights[i][j] < -1){
+                    weights[i][j] += mutationRate;
+                }
+                System.out.print(weights[i][j] + ", ");
+            }
+            System.out.println();
+        }
+        return weights;
     }
 
     public static void printBags(double[] bags){

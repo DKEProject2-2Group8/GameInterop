@@ -23,7 +23,7 @@ public class DummyAgentFactory implements IAgentFactory {
         List<Intruder> intruders = new LinkedList<>();
         for(int i = 0; i < amount; i++)
         {
-            intruders.add(percepts -> {
+            intruders.add((percepts, finalCount) -> {
                 if(tinyMovement)
                 {
                     return new Move(new Distance(0));
