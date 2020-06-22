@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public abstract class AgentCountExperiment {
 
-    private static final int RUNS = 1000;
+    private static final int RUNS = 100;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
@@ -23,7 +23,7 @@ public abstract class AgentCountExperiment {
 
     public static void runTest(boolean writeToFile) {
         // Setup algorithms
-        AgentFactoryImpl.setGuardAlgorithm(AgentFactoryImpl.AlgoG.FSM);
+        AgentFactoryImpl.setGuardAlgorithm(AgentFactoryImpl.AlgoG.RANDOM);
         AgentFactoryImpl.setIntruderAlgorithm(AgentFactoryImpl.AlgoI.RANDOM);
 
         // Execute tests
@@ -64,7 +64,7 @@ public abstract class AgentCountExperiment {
 
         }
         if (writeToFile) {
-            WriteToCSV.writeOut(results, "winRateTest1000");
+            WriteToCSV.writeOut(results, "winRateTest100");
         }
     }
 }
