@@ -1,6 +1,6 @@
 package Group8.PathFinding;
 
-import Group8.Agents.OccupancyGrid;
+import Group8.Agents.Guard.OccupancyGrid;
 import Interop.Action.IntruderAction;
 import Interop.Action.Move;
 import Interop.Action.Rotate;
