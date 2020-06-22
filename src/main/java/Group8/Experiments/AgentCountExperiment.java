@@ -54,7 +54,7 @@ public abstract class AgentCountExperiment {
                     "Progress: %f%%", intruderWins, guardWins,((double)(m+1)/mapNames.length)*100d));
             if(writeToFile) {
                 results.add(new String[]{Integer.toString(numberIntruders), Integer.toString(numberGuards),
-                        Integer.toString(RUNS), Integer.toString(guardWins), mapNames[m]});
+                        Integer.toString(guardWins), mapNames[m]});
             }
 
 
