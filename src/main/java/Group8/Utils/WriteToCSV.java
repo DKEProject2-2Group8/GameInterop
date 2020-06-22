@@ -30,6 +30,23 @@ public abstract class WriteToCSV {
             }
         }
     }
+    public static void writeOut(int numberIntruders, int numberGuards, int runs, int guardWins, String mapName, String fName) {
+        try (
+                Writer writer = Files.newBufferedWriter(Paths.get(String.format("./%s.csv",fName)));
+
+                CSVWriter csvWriter = new CSVWriter(writer,
+                        CSVWriter.DEFAULT_SEPARATOR,
+                        CSVWriter.NO_QUOTE_CHARACTER,
+                        CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                        CSVWriter.DEFAULT_LINE_END);
+        ) {
+            csvWriter.writeNext(new String[]{Integer.toString(numberIntruders), Integer.toString(numberGuards),
+                    Integer.toString(runs), Integer.toString(guardWins), mapName});
+
+        }catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+    }
 
 
 

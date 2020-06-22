@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentFactoryImpl implements IAgentFactory{
-    public static final AlgoG GUARD_ALGORITHM = AlgoG.FSM;
-    public static final AlgoI INTRUDER_ALGORITHM = AlgoI.RANDOM;
+    public static AlgoG GUARD_ALGORITHM = AlgoG.FSM;
+    public static AlgoI INTRUDER_ALGORITHM = AlgoI.RANDOM;
 
     public enum AlgoI {
         SIMPLE_PATH,FSM,RANDOM
@@ -69,5 +69,13 @@ public class AgentFactoryImpl implements IAgentFactory{
         }
 
         return guards;
+    }
+
+    public static void setGuardAlgorithm(AlgoG guardAlgorithm) {
+        GUARD_ALGORITHM = guardAlgorithm;
+    }
+
+    public static void setIntruderAlgorithm(AlgoI intruderAlgorithm) {
+        INTRUDER_ALGORITHM = intruderAlgorithm;
     }
 }
