@@ -23,7 +23,6 @@ public class AgentFactoryImpl implements IAgentFactory{
     }
     public enum AlgoG {
         RANDOM,OCCUPANCY_AGENT,FSM,TEST
-
     }
 
     @Override

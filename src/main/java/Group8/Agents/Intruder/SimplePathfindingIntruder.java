@@ -2,7 +2,6 @@ package Group8.Agents.Intruder;
 
 import Group8.PathFinding.SimplePathfinding;
 import Interop.Action.IntruderAction;
-import Interop.Action.Rotate;
 import Interop.Agent.Intruder;
 import Interop.Percept.IntruderPercepts;
 

@@ -5,14 +5,10 @@ import Interop.Action.Move;
 import Interop.Action.Rotate;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
-import Interop.Geometry.Point;
 import Interop.Percept.IntruderPercepts;
 import Interop.Percept.Scenario.SlowDownModifiers;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
-import Interop.Percept.Vision.ObjectPercepts;
-import Interop.Percept.Vision.VisionPrecepts;
-
 
 
 public class SimplePathfinding {
