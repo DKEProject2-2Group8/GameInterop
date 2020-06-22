@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public abstract class AgentCountExperiment {
 
-    private static final int RUNS = 10;
+    private static final int RUNS = 1000;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
@@ -64,7 +64,7 @@ public abstract class AgentCountExperiment {
 
         }
         if (writeToFile) {
-            WriteToCSV.writeOut(results, "winRateTest");
+            WriteToCSV.writeOut(results, "winRateTest1000");
         }
     }
 }
