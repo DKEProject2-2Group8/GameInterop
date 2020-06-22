@@ -23,14 +23,14 @@ public abstract class ParameterTests {
 
     public static void runTests(boolean writeToFile){
         // Setup algorithms
-        AgentFactoryImpl.setGuardAlgorithm(AgentFactoryImpl.AlgoG.FSM);
+        AgentFactoryImpl.setGuardAlgorithm(AgentFactoryImpl.AlgoG.RANDOM);
         AgentFactoryImpl.setIntruderAlgorithm(AgentFactoryImpl.AlgoI.RANDOM);
 
         // Execute tests
         ArrayList<String[]> results = new ArrayList<>();
         for (int m = 0; m < mapNames.length; m++) {
 
-            String mapPath = String.format("./src/main/java/Group8/Experiments/AgentCountMaps/%s.map", mapNames[m]);
+            String mapPath = String.format("./src/main/java/Group8/Experiments/ParameterTest/ParameterTestMaps/%s.map", mapNames[m]);
 
             for (int i = 0; i < RUNS; i++) {
                 Game game = new Game(Parser.parseFile(mapPath), agentFactory, false);
@@ -51,8 +51,7 @@ public abstract class ParameterTests {
             System.out.println(String.format("Intruders won: #%d games and guards won: #%d games\n" +
                     "Progress: %f%%", intruderWins, guardWins,((double)(m+1)/mapNames.length)*100d));
             if(writeToFile) {
-                results.add(new String[]{Integer.toString(numberIntruders), Integer.toString(numberGuards),
-                        Integer.toString(RUNS), Integer.toString(guardWins), mapNames[m]});
+                results.add(new String[]{Integer.toString(guardWins), mapNames[m]});
             }
 
 
