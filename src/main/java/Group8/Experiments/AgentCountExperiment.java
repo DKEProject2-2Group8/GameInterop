@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public abstract class AgentCountExperiment {
 
-    private static final int RUNS = 100;
+    private static final int RUNS = 10;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
@@ -22,11 +22,16 @@ public abstract class AgentCountExperiment {
     private static final IAgentFactory agentFactory = new AgentFactoryImpl();
 
     public static void runTest(boolean writeToFile) {
+        // Setup algorithms
+        AgentFactoryImpl.setGuardAlgorithm(AgentFactoryImpl.AlgoG.FSM);
+        AgentFactoryImpl.setIntruderAlgorithm(AgentFactoryImpl.AlgoI.RANDOM);
+
+        // Execute tests
         ArrayList<String[]> results = new ArrayList<>();
-        for (String mapName : mapNames) {
+        for (int m = 0; m < mapNames.length; m++) {
 
 
-            String mapPath = String.format("./src/main/java/Group8/Experiments/AgentCountMaps/%s.map", mapName);
+            String mapPath = String.format("./src/main/java/Group8/Experiments/AgentCountMaps/%s.map", mapNames[m]);
 
 
             for (int i = 0; i < RUNS; i++) {
@@ -42,13 +47,14 @@ public abstract class AgentCountExperiment {
                         guardWins++;
                     }
                 }
-                System.out.println(String.format("Progress: %f%%", ((i + 1d) / RUNS) * 100));
+                //System.out.println(String.format("Progress: %f%%", ((i + 1d) / RUNS) * 100));
             }
 
-            System.out.println(String.format("Intruders won: #%d games and guards won: #%d games", intruderWins, guardWins));
+            System.out.println(String.format("Intruders won: #%d games and guards won: #%d games\n" +
+                    "Progress: %f%%", intruderWins, guardWins,((double)(m+1)/mapNames.length)*100d));
             if(writeToFile) {
                 results.add(new String[]{Integer.toString(numberIntruders), Integer.toString(numberGuards),
-                        Integer.toString(RUNS), Integer.toString(guardWins), mapName});
+                        Integer.toString(RUNS), Integer.toString(guardWins), mapNames[m]});
             }
 
 
