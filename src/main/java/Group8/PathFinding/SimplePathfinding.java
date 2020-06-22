@@ -44,7 +44,13 @@ public class SimplePathfinding {
         for(ObjectPercept obj : percepts.getVision().getObjects().getAll()) {
             if(obj.getType()== ObjectPerceptType.Wall && !firstTime){
                 moveForward = true;   startIncr = true;
-                return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));
+                int rand = (int)(Math.random()*10);
+                if(rand>5) {
+                    return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));
+                }
+                else{
+                    return new Rotate(Angle.fromRadians(-MAX_ROTATION.getRadians()));
+                }
             }
         }
         /**
@@ -55,7 +61,7 @@ public class SimplePathfinding {
                 counter++;
             }
             firstTime = false;
-            return new Move(new Distance(0.25));
+            return new Move(new Distance(0.4));
         }
         else if(percepts.getTargetDirection().getRadians() >= MAX_ROTATION.getRadians()){
             return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));
