@@ -1,6 +1,6 @@
 package Group8.Launchers;
 
-import Group8.Experiments.AgentCountExperiment;
+import Group8.Experiments.AgentCountTest.AgentCountExperiment;
 
 public class ExperimentLauncher {
 

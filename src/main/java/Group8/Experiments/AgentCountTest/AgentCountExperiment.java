@@ -1,4 +1,4 @@
-package Group8.Experiments;
+package Group8.Experiments.AgentCountTest;
 
 import Group8.Agents.AgentFactoryImpl;
 import Group8.Utils.WriteToCSV;
@@ -30,9 +30,7 @@ public abstract class AgentCountExperiment {
         ArrayList<String[]> results = new ArrayList<>();
         for (int m = 0; m < mapNames.length; m++) {
 
-
             String mapPath = String.format("./src/main/java/Group8/Experiments/AgentCountMaps/%s.map", mapNames[m]);
-
 
             for (int i = 0; i < RUNS; i++) {
                 Game game = new Game(Parser.parseFile(mapPath), agentFactory, false);
