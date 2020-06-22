@@ -1,6 +1,5 @@
 package Group8.FFNN;
 
-import Group8.FFNN.Perceptron;
 import Interop.Action.IntruderAction;
 import Interop.Action.Move;
 import Interop.Action.Rotate;
@@ -8,38 +7,45 @@ import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
 import Interop.Geometry.Point;
 import Interop.Percept.IntruderPercepts;
+import Interop.Percept.Sound.SoundPercept;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
 
-public class VisionPredictor {
+public class VisionPredictorXL {
 
     IntruderPercepts percepts;
     Set<ObjectPercept> perception;
+    Set<SoundPercept> sounds;
     private final Angle MAX_ROTATION;
 
-    public VisionPredictor(IntruderPercepts percepts) {
+    public VisionPredictorXL(IntruderPercepts percepts) {
 
         percepts = percepts;
         perception = percepts.getVision().getObjects().getAll();
+        sounds = percepts.getSounds().getAll();
         MAX_ROTATION = percepts.getScenarioIntruderPercepts().getScenarioPercepts().getMaxRotationAngle();
 
     }
 
     public IntruderAction MakeFFNN(){
+
+        Iterator<SoundPercept> iterator2 = sounds.iterator();
+        double[] hears = new double[sounds.size()];
+        for(int i=0; i<sounds.size(); i++){
+            hears[i] = iterator2.next().getDirection().getDegrees();
+            //System.out.println(hears[i]);
+        }
+
         Iterator<ObjectPercept> iterator = perception.iterator();
-
-
-        /*while(iterator.hasNext()){
-            System.out.println(i + " " +iterator.next().getPoint());
-            i++;
-        }*/
-
         ObjectPercept[] rays = new ObjectPercept[perception.size()];
         for(int i=0; i<perception.size(); i++){
             rays[i] = iterator.next();
         }
+
+
 
 
 
@@ -63,11 +69,10 @@ public class VisionPredictor {
          * Bag 4 X : large Dist
          * Bag 5 X near 0 : small and large dist
          */
-        double[] bags = new double[5];
+        double[] bags = new double[12];
         for(int i=0; i<bags.length; i++){
             bags[i] = 0;
         }
-
         for(int i=0; i<rays.length; i++){
             if(rays[i].getPoint().getX() < -0.2 && rays[i].getType() == ObjectPerceptType.Wall){
                 if(testDistance(rays[i].getPoint(), false) < 3){
@@ -83,6 +88,25 @@ public class VisionPredictor {
                 }
             } else if(rays[i].getType() == ObjectPerceptType.Wall){
                 bags[4] += 1;
+            } else if(rays[i].getType() == ObjectPerceptType.Guard){    //Add bags for guards
+                if(rays[i].getPoint().getX() < -0.2){
+                    bags[5] += 1;
+                } else if(rays[i].getPoint().getX() > 0.2){
+                    bags[6] += 1;
+                } else{
+                    bags[7] += 1;
+                }
+            }
+        }
+        for(int i=0; i<hears.length; i++){
+            if(hears[i] >= 315 || hears[i] <= 45){
+                bags[8] += 1;
+            } else if(hears[i] > 45 && hears[i] < 135){
+                bags[9] += 1;
+            } else if(hears[i] >= 135 && hears[i] <= 225){
+                bags[10] += 1;
+            } else {
+                bags[11] += 1;
             }
         }
 
@@ -103,21 +127,49 @@ public class VisionPredictor {
 
         int choice = -1;
 
-
-        for(int i=bags.length-1; i>=0; i--){
-            if(bags[i]==0){
-                System.out.println("Bag is empty: " + i);
-                if(i==4){
-                    choice = 1;
-                } else if(i==3 || i==2){
-                    choice = 2;
-                } else if(i==1 || i==0){
-                    choice = 0;
+       /* for(int i= bags.length; i>=7; i--){
+            if(bags[i] != 0){
+                if(i==11){
+                    choice =
                 }
-                break;
+            }
+        }*/
+
+        //Makes bags for guards
+        for(int i=bags.length-5; i>=4; i--){
+            if(bags[i] != 0){
+                if(i==5){
+                    choice = 2;
+                } else if(i==6){
+                    choice = 0;
+                } else {
+                    choice = 1;
+                }
             }
         }
+        //If guards, no problems for vision predictor for walls, as you want to flee
         if(choice<0) {
+            for (int i = bags.length - 8; i >= 0; i--) {
+                if (bags[i] == 0) {
+                    System.out.println("Bag is empty: " + i);
+                    if (i == 4) {
+                        choice = 1;
+                    } else if (i == 3 || i == 2) {
+                        choice = 2;
+                    } else if (i == 1 || i == 0) {
+                        choice = 0;
+                    }
+                    break;
+                }
+            }
+        }
+
+        //If you want to always use NN put true:
+        boolean useNN = false;
+        //In not trivial cases, it will call the NN
+
+        //Otherwise use NN
+        if(choice<0 || useNN){
             choice = FFNN(bags);
         }
         /**
@@ -166,7 +218,14 @@ public class VisionPredictor {
                 {0.77, 0.07, 0.16},
                 {0.20, 0.11, 0.69},
                 {0.15, 0.19, 0.66},
-                {0.19, 0.59, 0.22}
+                {0.19, 0.59, 0.22},
+                {0.02, 0.17, 0.81},
+                {0.87, 0.90, 0.04},
+                {0.49, 0.01, 0.50},
+                {0.50, 0.01, 0.49},    //sounds
+                {0.35, 0.46, 0.19},
+                {0.17, 0.78, 0.05},
+                {0.06, 0.24, 0.70}
         };
 
         double[][] weights2 = {

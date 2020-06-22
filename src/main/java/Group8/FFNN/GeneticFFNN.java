@@ -32,8 +32,8 @@ public class GeneticFFNN {
         genesIndex = 1;
 
     }
-
-    public GeneticFFNN(IntruderPercepts percepts, int index) throws IOException {
+//throws IOException here
+    public GeneticFFNN(IntruderPercepts percepts, int index)  {
 
         percepts = percepts;
         perception = percepts.getVision().getObjects().getAll();
@@ -51,10 +51,13 @@ public class GeneticFFNN {
 
     }
 
-    public IntruderAction MakeFFNN(int ind) throws IOException {
+    /*
+    *   Some rests of the genetic training are still present, so some parts of the code may look weird but works
+     */
+    public IntruderAction MakeFFNN(){
         Iterator<ObjectPercept> iterator = perception.iterator();
 
-        this.genesIndex = Math.abs(ind);
+        this.genesIndex = Math.abs(1);
 
         /*while(iterator.hasNext()){
             System.out.println(i + " " +iterator.next().getPoint());
@@ -176,7 +179,7 @@ public class GeneticFFNN {
 
     }
 
-    public static int FFNN(double[] bags, int genesIndex) throws IOException {
+    public static int FFNN(double[] bags, int genesIndex) {
 
 
         //Perceptron[] hiddenLayer = new Perceptron[3];
@@ -186,18 +189,18 @@ public class GeneticFFNN {
         double[] sumOutput = new double[3];
         double[] summaOutput = new double[3];
 
-        /*double[][] weights1 = {
+        double[][] weights1 = {
                 {0.81, 0.11, 0.08},
                 {0.79, 0.7, 0.14},
                 {0.10, 0.1, 0.89},
                 {0.8, 0.25, 0.67},
                 {0.32, 0.57, 0.11}
-        };*/
+        };
         String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + genesIndex +  ".txt";
-        double[][] weights1 = readGenes(5, 3, path);
+      //  double[][] weights1 = readGenes(5, 3, path);
         dispGenes(weights1);
         weights1 = mutate(weights1);
-        writeGenes(genesIndex, weights1);
+       // writeGenes(genesIndex, weights1);
 
         double[][] weights2 = {
                 {0.7, 0.8, 0.85},
@@ -254,18 +257,19 @@ public class GeneticFFNN {
 
     }
 
-    public static void winGame(int index) throws IOException {
+    public static void winGame(int index){
         String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + index +  ".txt";
         double[][] weights1 = readGenes(5, 3, path);
         dispGenes(weights1);
         writeGenes(index, weights1);
     }
 
-    public static void writeGenes(int index, double[][] genes) throws IOException {
+    public static void writeGenes(int index, double[][] genes){
         int genesIndex = Math.abs(index);
         String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + genesIndex +  ".txt";
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+        //Uncomment for training, comment for API to discard exception
+       // BufferedWriter writer = new BufferedWriter(new FileWriter(path));
 
         String newGenes = "";
         for(int i=0; i<5;i++){
@@ -274,8 +278,8 @@ public class GeneticFFNN {
             }
         }
 
-        writer.write(newGenes);//save the string representation of the board
-        writer.close();
+       // writer.write(newGenes);//save the string representation of the board
+       // writer.close();
     }
 
     public static ObjectPercept[] bubbleSort(ObjectPercept[] arr) {
@@ -320,10 +324,11 @@ public class GeneticFFNN {
 
     }
 
-    public static double[][] readGenes(int dimX, int dimY, String path) throws FileNotFoundException {
+    public static double[][] readGenes(int dimX, int dimY, String path) {
         double[][] a = new double[dimX][dimY];
 
-        Scanner input = new Scanner (new File(path));
+        //Uncomment for training, comment for API to discard exception
+       /* Scanner input = new Scanner (new File(path));
         for(int i = 0; i < dimX; ++i)
         {
             for(int j = 0; j < dimY; ++j)
@@ -333,7 +338,7 @@ public class GeneticFFNN {
                     a[i][j] = input.nextDouble();
                 }
             }
-        }
+        }*/
         return a;
     }
 

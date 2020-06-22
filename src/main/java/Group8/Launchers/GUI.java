@@ -19,7 +19,7 @@ import java.util.List;
 
 public class GUI extends Application{
 
-    public static final boolean USE_OWN_GUI = false;
+    public static final boolean USE_OWN_GUI = true;
 
     private final int DEFAULT_WIDTH = 800, DEFAULT_HEIGHT = 600;
 

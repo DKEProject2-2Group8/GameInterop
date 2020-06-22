@@ -3,6 +3,8 @@ package Interop.Agent;
 import Interop.Action.*;
 import Interop.Percept.*;
 
+import java.io.IOException;
+
 /**
  * The interface of an intruder.
  *
