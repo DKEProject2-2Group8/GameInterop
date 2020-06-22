@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -30,7 +31,7 @@ public abstract class WriteToCSV {
             }
         }
     }
-    public static void writeOut(int numberIntruders, int numberGuards, int runs, int guardWins, String mapName, String fName) {
+    public static void writeOut(ArrayList<String[]> strings, String fName) {
         try (
                 Writer writer = Files.newBufferedWriter(Paths.get(String.format("./%s.csv",fName)));
 
@@ -40,8 +41,11 @@ public abstract class WriteToCSV {
                         CSVWriter.DEFAULT_ESCAPE_CHARACTER,
                         CSVWriter.DEFAULT_LINE_END);
         ) {
-            csvWriter.writeNext(new String[]{Integer.toString(numberIntruders), Integer.toString(numberGuards),
-                    Integer.toString(runs), Integer.toString(guardWins), mapName});
+
+            for (String[] s :
+                    strings) {
+                csvWriter.writeNext(s);
+            }
 
         }catch(IOException ioe){
             ioe.printStackTrace();
