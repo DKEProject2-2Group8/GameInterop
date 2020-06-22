@@ -17,7 +17,37 @@ public abstract class ParameterTests {
     private static int numberIntruders = 0;
     private static int numberGuards = 0;
 
-    private static final String[] mapNames = {"1v1","1v2","1v10","2v1","2v2","10v1","10v10"};
+    private static final String[] mapNames = {
+            "BaseLine",
+            "captureDistance+20",
+            "captureDistance+40",
+            "captureDistance-20",
+            "captureDistance-40",
+            "maxMoveDistanceGuard+20",
+            "maxMoveDistanceGuard+40",
+            "maxMoveDistanceGuard-20",
+            "maxMoveDistanceGuard-40",
+            "maxMoveDistanceIntruder+20",
+            "maxMoveDistanceIntruder+40",
+            "maxMoveDistanceIntruder-20",
+            "maxMoveDistanceIntruder-40",
+            "maxRotationAngle+20",
+            "maxRotationAngle+40",
+            "maxRotationAngle-20",
+            "maxRotationAngle-40",
+            "viewRangeGuardNormal+20",
+            "viewRangeGuardNormal+40",
+            "viewRangeGuardNormal-20",
+            "viewRangeGuardNormal-40",
+            "viewRangeIntruderNormal+20",
+            "viewRangeIntruderNormal+40",
+            "viewRangeIntruderNormal-20",
+            "viewRangeIntruderNormal-40",
+            "winConditionIntruderRounds+20",
+            "winConditionIntruderRounds+50",
+            "winConditionIntruderRounds-20",
+            "winConditionIntruderRounds-50"
+    };
 
     private static final IAgentFactory agentFactory = new AgentFactoryImpl();
 
