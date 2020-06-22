@@ -3,7 +3,7 @@ package Interop.Agent;
 import Interop.Action.*;
 import Interop.Percept.*;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * The interface of an intruder.
@@ -20,6 +20,6 @@ public interface Intruder {
      * @param finalCount
      * @return The action that the agent decides on taking.
      */
-    IntruderAction getAction(IntruderPercepts percepts, int finalCount) throws FileNotFoundException;
+    IntruderAction getAction(IntruderPercepts percepts, int finalCount) throws IOException;
 
 }

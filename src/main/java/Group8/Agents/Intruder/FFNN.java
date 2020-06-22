@@ -18,12 +18,13 @@ public class FFNN implements Intruder {
     }*/
 
     @Override
-    public IntruderAction getAction(IntruderPercepts percepts, int finalCount) throws FileNotFoundException {
+    public IntruderAction getAction(IntruderPercepts percepts, int finalCount) throws IOException {
         if(visionPredictor == null){
             visionPredictor = new VisionPredictor(percepts);
         }
         return visionPredictor.MakeFFNN(1);
     }
+
 
    /* public IntruderAction getAction(IntruderPercepts percepts, int i) throws IOException {
         if(visionPredictor == null){

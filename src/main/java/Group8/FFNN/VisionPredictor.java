@@ -40,15 +40,18 @@ public class VisionPredictor {
         MAX_ROTATION = percepts.getScenarioIntruderPercepts().getScenarioPercepts().getMaxRotationAngle();
         genesIndex = index;
 
-        if(genesIndex<0){
+        if(genesIndex<0 && genesIndex > -99){
             System.out.println("_____________________________WRITE_GENES_INDEX_______________________________");
-            writeGenes(genesIndex);
+            String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + genesIndex +  ".txt";
+            writeGenes(genesIndex, readGenes(5, 3, path));
+        } else if(genesIndex<-99){
+            winGame(Math.abs(genesIndex/100));
         }
         genesIndex = Math.abs(genesIndex);
 
     }
 
-    public IntruderAction MakeFFNN(int ind) throws FileNotFoundException {
+    public IntruderAction MakeFFNN(int ind) throws IOException {
         Iterator<ObjectPercept> iterator = perception.iterator();
 
         this.genesIndex = Math.abs(ind);
@@ -173,7 +176,7 @@ public class VisionPredictor {
 
     }
 
-    public static int FFNN(double[] bags, int genesIndex) throws FileNotFoundException {
+    public static int FFNN(double[] bags, int genesIndex) throws IOException {
 
 
         //Perceptron[] hiddenLayer = new Perceptron[3];
@@ -194,6 +197,7 @@ public class VisionPredictor {
         double[][] weights1 = readGenes(5, 3, path);
         dispGenes(weights1);
         weights1 = mutate(weights1);
+        writeGenes(genesIndex, weights1);
 
         double[][] weights2 = {
                 {0.7, 0.8, 0.85},
@@ -250,11 +254,17 @@ public class VisionPredictor {
 
     }
 
-    public static void writeGenes(int index) throws IOException {
+    public static void winGame(int index) throws IOException {
+        String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + index +  ".txt";
+        double[][] weights1 = readGenes(5, 3, path);
+        dispGenes(weights1);
+        writeGenes(index, weights1);
+    }
+
+    public static void writeGenes(int index, double[][] genes) throws IOException {
         int genesIndex = Math.abs(index);
         String path = "/home/lucas/IdeaProjects/GameInterop6/src/main/java/Group8/FFNN/GenePool/Genes" + genesIndex +  ".txt";
 
-        double[][] genes = readGenes(5, 3, path);
         BufferedWriter writer = new BufferedWriter(new FileWriter(path));
 
         String newGenes = "";

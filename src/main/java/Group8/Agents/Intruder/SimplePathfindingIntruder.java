@@ -5,6 +5,8 @@ import Interop.Action.IntruderAction;
 import Interop.Agent.Intruder;
 import Interop.Percept.IntruderPercepts;
 
+import java.io.IOException;
+
 
 /**
  * This agent will only focus on getting to the target and will not consider anything else
@@ -21,4 +23,6 @@ public class SimplePathfindingIntruder implements Intruder {
         }
         return pathfinding.getMoveIntruder(percepts);
     }
+
+
 }
