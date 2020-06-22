@@ -14,8 +14,6 @@ public abstract class ParameterTests {
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
-    private static int numberIntruders = 0;
-    private static int numberGuards = 0;
 
     private static final String[] mapNames = {
             "BaseLine",
@@ -60,12 +58,11 @@ public abstract class ParameterTests {
         ArrayList<String[]> results = new ArrayList<>();
         for (int m = 0; m < mapNames.length; m++) {
 
-            String mapPath = String.format("./src/main/java/Group8/Experiments/ParameterTest/ParameterTestMaps/%s.map", mapNames[m]);
+            String mapPath = String.format("./src/main/java/Group8/Experiments/ParametersTest/ParameterTestMaps/%s.map",
+                    mapNames[m]);
 
             for (int i = 0; i < RUNS; i++) {
                 Game game = new Game(Parser.parseFile(mapPath), agentFactory, false);
-                numberGuards = game.getGuards().size();
-                numberIntruders = game.getIntruders().size();
                 game.run();
                 Game.Team winner = game.getWinner();
                 if (winner != null) {
@@ -83,7 +80,6 @@ public abstract class ParameterTests {
             if(writeToFile) {
                 results.add(new String[]{Integer.toString(guardWins), mapNames[m]});
             }
-
 
             // Reset the counters
             intruderWins = 0;
