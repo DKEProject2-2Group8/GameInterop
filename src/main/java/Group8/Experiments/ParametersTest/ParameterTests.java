@@ -10,12 +10,10 @@ import java.util.ArrayList;
 
 public abstract class ParameterTests {
 
-    private static final int RUNS = 10;
+    private static final int RUNS = 1000;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
-    private static int numberIntruders = 0;
-    private static int numberGuards = 0;
 
     private static final String[] mapNames = {
             "BaseLine",
@@ -44,9 +42,9 @@ public abstract class ParameterTests {
             "viewRangeIntruderNormal-20",
             "viewRangeIntruderNormal-40",
             "winConditionIntruderRounds+20",
-            "winConditionIntruderRounds+50",
+            "winConditionIntruderRounds+40",
             "winConditionIntruderRounds-20",
-            "winConditionIntruderRounds-50"
+            "winConditionIntruderRounds-40"
     };
 
     private static final IAgentFactory agentFactory = new AgentFactoryImpl();
@@ -60,12 +58,11 @@ public abstract class ParameterTests {
         ArrayList<String[]> results = new ArrayList<>();
         for (int m = 0; m < mapNames.length; m++) {
 
-            String mapPath = String.format("./src/main/java/Group8/Experiments/ParameterTest/ParameterTestMaps/%s.map", mapNames[m]);
+            String mapPath = String.format("./src/main/java/Group8/Experiments/ParametersTest/ParameterTestMaps/%s.map",
+                    mapNames[m]);
 
             for (int i = 0; i < RUNS; i++) {
                 Game game = new Game(Parser.parseFile(mapPath), agentFactory, false);
-                numberGuards = game.getGuards().size();
-                numberIntruders = game.getIntruders().size();
                 game.run();
                 Game.Team winner = game.getWinner();
                 if (winner != null) {
@@ -84,14 +81,13 @@ public abstract class ParameterTests {
                 results.add(new String[]{Integer.toString(guardWins), mapNames[m]});
             }
 
-
             // Reset the counters
             intruderWins = 0;
             guardWins = 0;
 
         }
         if (writeToFile) {
-            WriteToCSV.writeOut(results, "winRateTest");
+            WriteToCSV.writeOut(results, "winRateTestParameters1000");
         }
     }
 }
