@@ -7,6 +7,7 @@ public class ExperimentLauncher {
 
     public static void main(String[] args) {
         //AgentCountExperiment.runTest(true);
-        ParameterTests.runTests(true);
+        //ParameterTests.runTests(true);
+        AgentCountExperiment.executeTests(true);
     }
 }
