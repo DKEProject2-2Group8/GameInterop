@@ -1,5 +1,6 @@
 package Group9;
 
+import Group8.FFNN.VisionPredictorXL;
 import Group9.agent.container.AgentContainer;
 import Group9.agent.container.GuardContainer;
 import Group9.agent.container.IntruderContainer;
@@ -336,6 +337,8 @@ public class Game implements Runnable {
                     final IntruderAction action = intruder.getAgent().getAction(this.generateIntruderPercepts(intruder));
                     actionSuccess.put(intruder, executeAction(intruder, action));
                 });
+
+                new VisionPredictorXL(this.generateIntruderPercepts(intruder));
 
                 if((winner = checkForWinner()) != null)
                 {
