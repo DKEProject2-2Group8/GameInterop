@@ -23,15 +23,12 @@ import java.util.List;
 
 public class AgentFactoryImpl implements IAgentFactory{
 
-    public static final AlgoG GUARD_ALGORITHM= AlgoG.AI1;
+    public static final AlgoG GUARD_ALGORITHM= AlgoG.RANDOM;
     public static final AlgoI INTRUDER_ALGORITHM = AlgoI.FSM;
 
-    
-    public static AlgoG GUARD_ALGORITHM = AlgoG.FSM;
-    public static AlgoI INTRUDER_ALGORITHM = AlgoI.RANDOM;
 
     public enum AlgoI {
-        SIMPLE_PATH,FSM,RANDOM,,FFNN,FFNNXL,GENETICFFNN
+        SIMPLE_PATH,FSM,RANDOM,FFNN,FFNNXL,GENETICFFNN
 
     }
     public enum AlgoG {
@@ -90,11 +87,11 @@ public class AgentFactoryImpl implements IAgentFactory{
         return guards;
     }
 
-    public static void setGuardAlgorithm(AlgoG guardAlgorithm) {
+   /* public static void setGuardAlgorithm(AlgoG guardAlgorithm) {
         GUARD_ALGORITHM = guardAlgorithm;
     }
 
     public static void setIntruderAlgorithm(AlgoI intruderAlgorithm) {
         INTRUDER_ALGORITHM = intruderAlgorithm;
-    }
+    }*/
 }
