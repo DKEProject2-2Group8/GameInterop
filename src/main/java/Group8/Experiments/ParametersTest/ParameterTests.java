@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public abstract class ParameterTests {
 
-    private static final int RUNS = 1;
+    private static final int RUNS = 1000;
 
     private static int intruderWins = 0;
     private static int guardWins = 0;
@@ -87,7 +87,7 @@ public abstract class ParameterTests {
 
         }
         if (writeToFile) {
-            WriteToCSV.writeOut(results, "winRateTestParameters");
+            WriteToCSV.writeOut(results, "winRateTestParameters1000");
         }
     }
 }
