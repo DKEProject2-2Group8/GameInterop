@@ -56,11 +56,15 @@ public class OccupancyAgent implements Guard {
     private final double viewRange = 6.0; //I don't know how to pull this of if they are defined
 
     double xPosition, yPosition;
-    Distance rangeDistance = percepts.getVision().getFieldOfView().getRange();
+    Distance rangeDistance;
+    Distance maxMoveDistance;
 
     private int suroundUpdateIteration = 1;
     private ObjectPercept objectPercept;
     private ObjectPercepts objectPercepts;
+
+    Angle rotateAngleOld;
+    Angle rotateAngleNew;
 
     public OccupancyAgent() {
         this.occupancyGrid = new OccupancyGrid();
@@ -142,20 +146,38 @@ public class OccupancyAgent implements Guard {
     @Override
     public GuardAction getAction(GuardPercepts percepts) {
         //update the log-map and occupancy grid
+        rangeDistance = percepts.getVision().getFieldOfView().getRange();
         mapping(percepts);
+
+        for(int i = 0 ; i < this.occupancyGrid.occupancyGrid.length; i++){
+            for(int j = 0 ; j < this.occupancyGrid.occupancyGrid[0].length; j++){
+                if(this.occupancyGrid.occupancyGrid[i][j]==true){
+                    System.out.println("yanis le tres nwar");
+                }
+            }
+        }
+
+        rotateAngleNew = Angle.fromRadians(percepts.getScenarioGuardPercepts().getScenarioPercepts().getMaxRotationAngle().getRadians() * Game._RANDOM.nextDouble());
 
         if(!percepts.wasLastActionExecuted())
         {
-            if(Math.random() < 0.1)
+            if(Math.random() < 0.2)
             {
                 return new DropPheromone(SmellPerceptType.values()[(int) (Math.random() * SmellPerceptType.values().length)]);
             }
-            return new Rotate(Angle.fromRadians(percepts.getScenarioGuardPercepts().getScenarioPercepts().getMaxRotationAngle().getRadians() * Game._RANDOM.nextDouble()));
+            return new Rotate(rotateAngleNew);
 
         } else {
-            Distance distance = new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts));
-            return new Move(distance);
+            maxMoveDistance = new Distance(percepts.getScenarioGuardPercepts().getMaxMoveDistanceGuard().getValue() * getSpeedModifier(percepts));
+            //radian sometimes not turning negative
+            //radians in this case is Math.Atan(percentageOfSlope/100)
+           // System.out.println(maxMoveDistance.toString());
+
+            xPosition+=maxMoveDistance.getValue()*rotateAngleNew.getRadians();
+            yPosition+=maxMoveDistance.getValue()*rotateAngleNew.getRadians();
+            return new Move(maxMoveDistance);
         }
+
     }
 
     /**
@@ -283,22 +305,29 @@ public class OccupancyAgent implements Guard {
 
             // Boolean occupancy.
             for (int x = x1, y = y1; x <= x2; x++) {
-                if (x == x2 && y == y2) {
+                //just set to false in agents FOV
+                occupancyGrid.update(x, y, false);
 
-                    //set only last value to true
-                    occupancyGrid.update(x, y);
-                    break;
-                } else {
-                    occupancyGrid.update(x, y, false);
+                // Add slope to increment angle formed
+                slope_error_new += m_new;
 
-                    // Add slope to increment angle formed
-                    slope_error_new += m_new;
+                // Slope error reached limit, time to
+                // increment y and update slope error.
+                if (slope_error_new >= 0) {
+                    y++;
+                    slope_error_new -= 2 * (x2 - x1);
+                }
 
-                    // Slope error reached limit, time to
-                    // increment y and update slope error.
-                    if (slope_error_new >= 0) {
-                        y++;
-                        slope_error_new -= 2 * (x2 - x1);
+                //If x and y are in the final vision point and set to true if there is a wall.
+                if(x==objectPercept.getPoint().getX() && y == objectPercept.getPoint().getY()) {
+                    System.out.println("hit");
+
+                    //only walls are solid
+                    if(objectPercept.getType().isSolid()) {
+
+                        occupancyGrid.update(x,y, true);
+                    } else {
+                        occupancyGrid.update(x,y, false);
                     }
                 }
             }
@@ -373,7 +402,7 @@ public class OccupancyAgent implements Guard {
             //Agent is facing the endpoint
             else {
                 //TODO: rotate the other direction.
-                System.out.println("Agent is staring at a corner.  You need to add a case if agent is staring at a endpoint.");
+                System.out.println("Agent is staring at a corner.  You need to add a case if this message appears");
             }
 
             //countTrue not updating?
@@ -665,8 +694,8 @@ public class OccupancyAgent implements Guard {
             // NE
             else if (x2 < x1 && y2 < y1) {
                 //this counts everything
-                for (int i = y1; i < y1 + explorationSize; i++) {
-                    for (int j = x1 - explorationSize; j < x1; j++) {
+                for (int i = y1; i < y1 + explorationSize -1; i++) {
+                    for (int j = x1 - explorationSize; j < x1 -1; j++) {
                         if (occupancyGrid.logMap[j][i] == 0) {
                             //at top left
                             if (i == 0 && j == 0) {
@@ -800,6 +829,42 @@ public class OccupancyAgent implements Guard {
 //        else {
 //
 //        }
+    }
+
+    //linking up path planning would be better in the future.
+    /**
+     * This function finds the minimum cost in Log-map as to the direction in which the agent would navigate towards
+     * @return Angle that the agent should take as next move set.
+     */
+    public void minimumCost() {
+        //this indicates the direction the agent would need to navigate towards
+        double[][] exploration;
+        double threshold = 1.5;
+
+        //NW case
+        if(xPosition-maxMoveDistance.getValue() <= threshold && yPosition-maxMoveDistance.getValue() <= threshold) {
+
+        }
+        //NE
+        else if(xPosition >= occupancyGrid.logMap.length-threshold && yPosition-maxMoveDistance.getValue() <= threshold) {
+
+        }
+        //SE
+        else if(xPosition-maxMoveDistance.getValue() <= threshold && yPosition >= occupancyGrid.logMap.length - threshold) {
+
+        }
+        //SW
+        else if(xPosition >= occupancyGrid.logMap.length-threshold && yPosition >= occupancyGrid.logMap.length - threshold) {
+
+        }
+
+        //N
+
+        //S
+
+        //E
+
+        //W
     }
 
 }
