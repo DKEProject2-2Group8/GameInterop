@@ -24,7 +24,7 @@ import java.util.List;
 public class AgentFactoryImpl implements IAgentFactory{
 
     public static AlgoG GUARD_ALGORITHM= AlgoG.RANDOM;
-    public static AlgoI INTRUDER_ALGORITHM = AlgoI.FSM;
+    public static AlgoI INTRUDER_ALGORITHM = AlgoI.RANDOM;
 
 
     public enum AlgoI {
