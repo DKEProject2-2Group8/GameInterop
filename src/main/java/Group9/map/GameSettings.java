@@ -164,4 +164,11 @@ public class GameSettings {
         return  pheromoneExpireRounds;
     }
 
+    public void setNumGuards(int numGuards) {
+        this.numGuards = numGuards;
+    }
+
+    public void setNumIntruders(int numIntruders) {
+        this.numIntruders = numIntruders;
+    }
 }

@@ -75,7 +75,7 @@ public class GUI extends Application{
         scene.attachWindow(stage);
         scene.rescale();
         stage.show();
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.setOnCloseRequest(windowEvent -> {
             System.out.println("GUI shutting down...");
         });

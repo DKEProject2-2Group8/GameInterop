@@ -5,14 +5,10 @@ import Interop.Action.Move;
 import Interop.Action.Rotate;
 import Interop.Geometry.Angle;
 import Interop.Geometry.Distance;
-import Interop.Geometry.Point;
 import Interop.Percept.IntruderPercepts;
 import Interop.Percept.Scenario.SlowDownModifiers;
 import Interop.Percept.Vision.ObjectPercept;
 import Interop.Percept.Vision.ObjectPerceptType;
-import Interop.Percept.Vision.ObjectPercepts;
-import Interop.Percept.Vision.VisionPrecepts;
-
 
 
 public class SimplePathfinding {
@@ -48,7 +44,13 @@ public class SimplePathfinding {
         for(ObjectPercept obj : percepts.getVision().getObjects().getAll()) {
             if(obj.getType()== ObjectPerceptType.Wall && !firstTime){
                 moveForward = true;   startIncr = true;
-                return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));
+                int rand = (int)(Math.random()*10);
+                if(rand>5) {
+                    return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));
+                }
+                else{
+                    return new Rotate(Angle.fromRadians(-MAX_ROTATION.getRadians()));
+                }
             }
         }
         /**
@@ -59,7 +61,7 @@ public class SimplePathfinding {
                 counter++;
             }
             firstTime = false;
-            return new Move(new Distance(0.25));
+            return new Move(new Distance(0.4));
         }
         else if(percepts.getTargetDirection().getRadians() >= MAX_ROTATION.getRadians()){
             return new Rotate(Angle.fromRadians(MAX_ROTATION.getRadians()));

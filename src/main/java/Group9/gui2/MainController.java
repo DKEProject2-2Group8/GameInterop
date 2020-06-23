@@ -5,7 +5,9 @@ import Group9.Callback;
 import Group9.Game;
 import Group9.agent.container.GuardContainer;
 import Group9.agent.container.IntruderContainer;
+import Group9.agent.factories.DeepSpaceAgentFactory;
 import Group9.agent.factories.DefaultAgentFactory;
+import Group9.agent.factories.ShallowSpaceAgentFactory;
 import Group9.map.dynamic.DynamicObject;
 import Group9.map.parser.Parser;
 import javafx.animation.AnimationTimer;
@@ -75,6 +77,7 @@ public class MainController implements Runnable {
         if(animator!=null){
             animator.stop();
         }
+        System.out.println(String.format("The winner is: %s",game.getWinner()));
     }
     public void updateGameSpeed(int gameSpeed){
         game.getTicks().set(gameSpeed);
