@@ -130,6 +130,13 @@ public class GameScene extends Scene {
         gcBackground.fillRect(0,0, width, height);
     }
 
+    protected double[]  scalePoints(double[] points,double scale){
+        double[] newPoints = new double[points.length];
+        for(int i=0;i<points.length;i++){
+            newPoints[i] = points[i]*scale;
+        }
+        return newPoints;
+    }
 
     public void drawEntities(List<GuardContainer> guards, List<IntruderContainer> intruders, List<DynamicObject<?>> objects){
         for (DynamicObject<?> obj : objects) {
@@ -155,6 +162,10 @@ public class GameScene extends Scene {
 
         for (GuardContainer guard:
                 guards) {
+
+            // Vision Rectangle
+            gcForeground.setFill(Color.RED);
+            gcForeground.fillRect((guard.getPosition().getX()+guard.getDirection().getX())*SCALE,(guard.getPosition().getY()+guard.getDirection().getY())*SCALE,8,8);
             drawAgent(guard,Presets.GUARD_COL);
         }
         for(IntruderContainer intruder:
