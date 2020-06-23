@@ -63,7 +63,8 @@ public abstract class AgentCountExperiment {
 
         }
         if (writeToFile) {
-            WriteToCSV.writeOut(results, "winRateTestAgentCountContinuation1000");
+            WriteToCSV.writeOut(results, "winRateTestAgentCountContinuation100" +
+                    "");
         }
     }
 
