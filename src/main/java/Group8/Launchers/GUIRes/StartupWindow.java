@@ -2,14 +2,19 @@ package Group8.Launchers.GUIRes;
 
 import Group8.Launchers.GUI;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -29,17 +34,20 @@ public class StartupWindow extends Application {
         primaryStage.setTitle("G8 GameInterop");
 
         // predefine size of gui objects
-        final int OBJ_WIDTH = 140, SLIMAX = 250,SLIMIN = 5;
+        final int OBJ_WIDTH = 140, SLIMAX = 250, SLIMIN = 5, SPACING = 20;
 
-        // define the buttons
+        // define buttons and labels
         Button btnStart = new Button("Start");
         Button btnMap = new Button("Choose Map");
         Button btnExit = new Button("Exit");
+        Label lblTick = new Label("Ticks:");
+        Label lblHeader = new Label("Multi-agent Surveillance");
 
         // design em
         btnStart.setMinWidth(OBJ_WIDTH);
         btnMap.setMinWidth(OBJ_WIDTH);
         btnExit.setMinWidth(OBJ_WIDTH);
+        lblHeader.setFont(new Font("Arial", 28));
 
         // define and design the slider
         Slider sliTicks = new Slider();
@@ -52,11 +60,11 @@ public class StartupWindow extends Application {
 
         // create an window and a vbox to place the buttons upon
         StackPane root = new StackPane();
-        VBox buttonVBox = new VBox(20);
+        VBox buttonVBox = new VBox(SPACING);
         buttonVBox.setAlignment(Pos.CENTER);
         root.getChildren().add(buttonVBox);
-        buttonVBox.getChildren().addAll(btnStart,btnMap,sliTicks,btnExit);
-        primaryStage.setScene(new Scene(root, 300, 200));
+        buttonVBox.getChildren().addAll(lblHeader,btnStart,btnMap,lblTick,sliTicks,btnExit);
+        primaryStage.setScene(new Scene(root, 350, 300));
 
         // button actions
         btnExit.setOnMouseClicked(new EventHandler<MouseEvent>() {
