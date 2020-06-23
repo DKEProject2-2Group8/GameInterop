@@ -12,15 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AgentFactoryImpl implements IAgentFactory{
-    public static final AlgoG GUARD_ALGORITHM = AlgoG.OCCUPANCY_AGENT;
-    public static final AlgoI INTRUDER_ALGORITHM = AlgoI.FSM;
+    public AlgoG GUARD_ALGORITHM = AlgoG.RAND;
+    public AlgoI INTRUDER_ALGORITHM = AlgoI.FSM;
 
     public enum AlgoI {
-        SIMPLE_PATH,FSM
+        SIMPLE_PATH,FSM,FFNN,RAND,ASTAR
     }
     public enum AlgoG {
-        AI1,OCCUPANCY_AGENT
-
+        RAND,OCCUPANCY_AGENT,FSM
     }
 
     @Override
@@ -30,9 +29,18 @@ public class AgentFactoryImpl implements IAgentFactory{
         for(int i=0; i<number; i++){
             switch(INTRUDER_ALGORITHM) {
                 case FSM:
-                    intruders.add(new FSM());
+                    intruders.add(new FSM()); // fix them
                     break;
                 case SIMPLE_PATH:
+                    intruders.add(new SimplePathfindingIntruder());
+                    break;
+                case FFNN:
+                    intruders.add(new SimplePathfindingIntruder());
+                    break;
+                case RAND:
+                    intruders.add(new SimplePathfindingIntruder());
+                    break;
+                case ASTAR:
                     intruders.add(new SimplePathfindingIntruder());
                     break;
             }
@@ -47,12 +55,15 @@ public class AgentFactoryImpl implements IAgentFactory{
 
         for(int i=0; i<number; i++){
             switch(GUARD_ALGORITHM) {
-                case AI1:
+                case RAND:
                     // This was stolen from the controller
                     guards.add(new RandomAgent());
                     break;
                 case OCCUPANCY_AGENT:
                     guards.add(new OccupancyAgent());
+                    break;
+                case FSM:
+                    //guards.add(new GuardFSMAgent());
                     break;
             }
         }

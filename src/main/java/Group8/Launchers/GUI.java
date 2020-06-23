@@ -1,6 +1,7 @@
 package Group8.Launchers;
 
 
+import Group8.Agents.AgentFactoryImpl;
 import Group8.Launchers.GUIRes.GameScene;
 import Group8.Launchers.GUIRes.StartupWindow;
 import Group9.Game;
@@ -55,7 +56,7 @@ public class GUI extends Application{
         startupWindow.start(stage);
     }
 
-    public void startGame(Stage stage, String mapPath, int ticks) { // throws Exception maybe
+    public void startGame(Stage stage, String mapPath, int ticks, AgentFactoryImpl agentFactory) { // throws Exception maybe
         // test if params are null and then take standard vals
         if(mapPath == null) {
             mapPath = "./src/main/java/Group9/map/maps/test_2.map";
@@ -63,9 +64,12 @@ public class GUI extends Application{
         if (ticks == 0) {
             ticks = 15;
         }
+
         // setup game params
-        game = new Game(Parser.parseFile(mapPath), new DefaultAgentFactory(), false, ticks,null);
+        //game = new Game(Parser.parseFile(mapPath), new DefaultAgentFactory(), false, ticks,null);
+        game = new Game(Parser.parseFile(mapPath), agentFactory, false, ticks,null);
         scene = new GameScene(new StackPane(),game.getGameMap(),this);
+
         // prepare window
         stage.setHeight(DEFAULT_HEIGHT);
         stage.setWidth(DEFAULT_WIDTH);

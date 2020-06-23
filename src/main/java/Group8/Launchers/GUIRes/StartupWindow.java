@@ -1,9 +1,11 @@
 package Group8.Launchers.GUIRes;
 
+import Group8.Agents.AgentFactoryImpl;
 import Group8.Launchers.GUI;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -23,6 +25,7 @@ import java.io.File;
 public class StartupWindow extends Application {
 
     GUI gui;
+    AgentFactoryImpl agentFactory = new AgentFactoryImpl();
     String choosenMap = null;
 
     public void setGUI(GUI gui) {
@@ -42,12 +45,64 @@ public class StartupWindow extends Application {
         Button btnExit = new Button("Exit");
         Label lblTick = new Label("Ticks:");
         Label lblHeader = new Label("Multi-agent Surveillance");
+        Label lblGuardS = new Label("Guard Algorithm");
+        Label lblIntruS = new Label("Intruder Algorithm");
 
         // design em
         btnStart.setMinWidth(OBJ_WIDTH);
         btnMap.setMinWidth(OBJ_WIDTH);
         btnExit.setMinWidth(OBJ_WIDTH);
         lblHeader.setFont(new Font("Arial", 28));
+
+        // cbGuardAlgoSelect
+        String agentAlgos[] = { "Random", "Occupancy", "FSM" };
+        ComboBox cbGuardAlgoSelect = new ComboBox(FXCollections.observableArrayList(agentAlgos));
+        cbGuardAlgoSelect.setMinWidth(OBJ_WIDTH);
+
+        cbGuardAlgoSelect.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                switch (cbGuardAlgoSelect.getValue().toString()) {
+                    case "Random":
+                        agentFactory.GUARD_ALGORITHM = AgentFactoryImpl.AlgoG.RAND;
+                    break;
+                    case "Occupancy":
+                        agentFactory.GUARD_ALGORITHM = AgentFactoryImpl.AlgoG.OCCUPANCY_AGENT;
+                        break;
+                }
+
+            }
+        });
+        cbGuardAlgoSelect.getSelectionModel().select(0);
+
+        String intruderAlgos[] = { "Random", "FSM", "FFNN", "ASTAR", "Simplepath" };
+        ComboBox cbIntruderAlgoSelect = new ComboBox(FXCollections.observableArrayList(intruderAlgos));
+        cbIntruderAlgoSelect.setMinWidth(OBJ_WIDTH);
+
+        cbIntruderAlgoSelect.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                switch (cbIntruderAlgoSelect.getValue().toString()) {
+                    case "Random":
+                        agentFactory.INTRUDER_ALGORITHM = AgentFactoryImpl.AlgoI.RAND;
+                        break;
+                    case "FSM":
+                        agentFactory.INTRUDER_ALGORITHM = AgentFactoryImpl.AlgoI.FSM;
+                        break;
+                    case "FFNN":
+                        agentFactory.INTRUDER_ALGORITHM = AgentFactoryImpl.AlgoI.FFNN;
+                        break;
+                    case "ASTAR":
+                        agentFactory.INTRUDER_ALGORITHM = AgentFactoryImpl.AlgoI.ASTAR;
+                        break;
+                    case "Simplepath":
+                        agentFactory.INTRUDER_ALGORITHM = AgentFactoryImpl.AlgoI.SIMPLE_PATH;
+                        break;
+                }
+
+            }
+        });
+        cbIntruderAlgoSelect.getSelectionModel().select(0);
 
         // define and design the slider
         Slider sliTicks = new Slider();
@@ -63,22 +118,21 @@ public class StartupWindow extends Application {
         VBox buttonVBox = new VBox(SPACING);
         buttonVBox.setAlignment(Pos.CENTER);
         root.getChildren().add(buttonVBox);
-        buttonVBox.getChildren().addAll(lblHeader,btnStart,btnMap,lblTick,sliTicks,btnExit);
-        primaryStage.setScene(new Scene(root, 350, 300));
+        buttonVBox.getChildren().addAll(lblHeader,btnStart,lblGuardS,cbGuardAlgoSelect,lblIntruS,cbIntruderAlgoSelect,btnMap,lblTick,sliTicks,btnExit);
+        primaryStage.setScene(new Scene(root, 320, 450));
 
         // button actions
         btnExit.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //Stage stage = (Stage) btnExit.getScene().getWindow();
-                primaryStage.close(); // works?
+                primaryStage.close();
             }
         });
 
         btnStart.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                gui.startGame(primaryStage, choosenMap,(int)sliTicks.getValue());
+                gui.startGame(primaryStage, choosenMap,(int)sliTicks.getValue(),agentFactory);
             }
         });
 
@@ -89,7 +143,6 @@ public class StartupWindow extends Application {
                 fileChooser.setTitle("Select a Map");
                 File file = fileChooser.showOpenDialog(primaryStage);
                 choosenMap = file.getAbsolutePath();
-                int i = 1;
             }
         });
 
