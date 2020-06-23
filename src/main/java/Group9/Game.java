@@ -338,8 +338,6 @@ public class Game implements Runnable {
                     actionSuccess.put(intruder, executeAction(intruder, action));
                 });
 
-                new VisionPredictorXL(this.generateIntruderPercepts(intruder));
-
                 if((winner = checkForWinner()) != null)
                 {
                     return winner;
